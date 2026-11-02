@@ -516,7 +516,7 @@
             border: 1.5px solid var(--border);
             border-radius: var(--radius-md);
             padding: 16px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             background: #ffffff;
             cursor: pointer;
             transition: all 0.2s;
@@ -528,7 +528,29 @@
         .product-group-card:hover {
             border-color: var(--brand-blue);
             background: #eff6ff;
-            transform: translateX(4px);
+            transform: translateX(3px);
+        }
+
+        .product-btn-action {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: var(--navy-light);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .product-btn-action:hover {
+            border-color: var(--brand-blue);
+            color: var(--brand-blue);
+        }
+
+        .product-btn-del:hover {
+            border-color: #fca5a5;
+            color: #ef4444;
+            background: #fef2f2;
         }
 
         .file-badge {
@@ -770,6 +792,19 @@
         </div>
     </div>
 
+    <!-- Modal 3-C: 編輯產品分類彈窗 -->
+    <div class="modal-overlay" id="edit-product-group-modal">
+        <div class="modal-window" style="max-width: 420px;">
+            <button class="modal-close-btn" onclick="closeModal('edit-product-group-modal')">✕</button>
+            <h3 style="margin-bottom: 12px;">✏️ 編輯產品線資訊</h3>
+            <div class="detail-label">產品名稱</div>
+            <input type="text" id="edit-product-group-name">
+            <div class="detail-label">產品簡介 / 業務範疇</div>
+            <textarea id="edit-product-group-desc" rows="2"></textarea>
+            <button class="btn btn-brand" style="width: 100%; justify-content: center;" onclick="confirmUpdateProductGroup()">儲存修改</button>
+        </div>
+    </div>
+
     <!-- Modal 4: 自訂法學英文單字 -->
     <div class="modal-overlay" id="add-vocab-modal">
         <div class="modal-window" style="max-width: 460px;">
@@ -841,7 +876,7 @@
 
 <script>
     // ================= ⚠️ 請在此填入妳在 Firebase 取得的專案金鑰 ⚠️ =================
-const firebaseConfig = {
+   const firebaseConfig = {
   apiKey: "AIzaSyAQGvIT3qkmqjcEaC1l9tAGRmmKuWVgIDw",
   authDomain: "legal-ops-hub-f565d.firebaseapp.com",
   projectId: "legal-ops-hub-f565d",
@@ -1026,6 +1061,7 @@ const firebaseConfig = {
     let activeIssueId = null;
     let currentContractType = "standard"; // 'standard' 或 'product'
     let currentSelectedProductId = null; // 當前正在檢視的產品 ID
+    let editingProductGroupId = null; // 正在編輯的產品群組 ID
     let activeProjectId = null;
 
     // 監聽專屬個人雲端資料
@@ -1215,7 +1251,7 @@ const firebaseConfig = {
     // ================= 📂 合約知識庫模組（兩層式產品架構） =================
     function openContractListModal(type) {
         currentContractType = type;
-        currentSelectedProductId = null; // 重置已選產品
+        currentSelectedProductId = null;
         const backBtn = document.getElementById('btn-product-back');
         const triggerBtn = document.getElementById('btn-add-contract-trigger');
 
@@ -1225,7 +1261,6 @@ const firebaseConfig = {
             triggerBtn.innerText = "+ 新增制式合約";
             renderStandardContracts();
         } else {
-            // 進入產品分類的第一層：產品列表
             backBtn.style.display = 'none';
             document.getElementById('contract-hub-title').innerText = "🚀 產品清單 (請點選進入各產品專區)";
             triggerBtn.innerText = "+ 新增產品線";
@@ -1234,7 +1269,7 @@ const firebaseConfig = {
         openModal('contract-hub-modal');
     }
 
-    // 第一層：渲染產品列表
+    // 第一層：渲染產品列表（支援編輯與刪除按鈕）
     function renderProductGroups() {
         const container = document.getElementById('contract-items-container');
         const groups = appData.productGroups || [];
@@ -1248,13 +1283,17 @@ const firebaseConfig = {
             const count = (appData.productContracts || []).filter(c => c.productId === p.id).length;
             return `
                 <div class="product-group-card" onclick="enterProductGroup(${p.id})">
-                    <div>
-                        <div style="font-size: 15px; font-weight: 800; color: var(--navy-primary);">${p.name}</div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${p.desc || "（無描述）"}</div>
+                    <div style="flex: 1; padding-right: 12px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 15px; font-weight: 800; color: var(--navy-primary);">${p.name}</span>
+                            <span style="font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 7px; border-radius: 10px; font-weight: 700;">📁 ${count} 份合約</span>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">${p.desc || "（無描述）"}</div>
                     </div>
-                    <div style="text-align: right;">
-                        <span style="font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 12px; font-weight: 700;">📁 ${count} 份合約</span>
-                        <div style="font-size: 11px; color: var(--brand-blue); margin-top: 4px; font-weight: 600;">進入檢視 ➔</div>
+                    <div style="display: flex; align-items: center; gap: 6px;" onclick="event.stopPropagation()">
+                        <button class="product-btn-action" title="編輯產品名稱與描述" onclick="openEditProductGroupModal(${p.id})">✏️ 編輯</button>
+                        <button class="product-btn-action product-btn-del" title="刪除產品" onclick="deleteProductGroup(${p.id})">🗑️ 刪除</button>
+                        <span style="font-size: 12px; color: var(--brand-blue); font-weight: 700; margin-left: 6px; cursor: pointer;" onclick="enterProductGroup(${p.id})">進入 ➔</span>
                     </div>
                 </div>
             `;
@@ -1296,6 +1335,7 @@ const firebaseConfig = {
                         <div style="font-size: 15px; font-weight: 800; color: var(--navy-primary);">${item.name}</div>
                         <span style="font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: var(--text-muted); font-weight: 600;">條款類別：${item.category || "未分類"}</span>
                     </div>
+                    <button class="product-btn-action product-btn-del" style="font-size: 11px; padding: 3px 6px;" onclick="deleteProductContractItem(${item.id})">🗑️ 刪除合約</button>
                 </div>
                 <div style="font-size: 13px; color: var(--navy-light); margin-top: 8px; background: #f8fafc; padding: 8px 10px; border-radius: 6px;">
                     ${item.summary || "（無摘要備註）"}
@@ -1307,6 +1347,14 @@ const firebaseConfig = {
                 ` : ''}
             </div>
         `).join('');
+    }
+
+    // 刪除個別合約條目
+    function deleteProductContractItem(itemId) {
+        if (!confirm("確定要刪除這筆合約紀錄嗎？")) return;
+        appData.productContracts = (appData.productContracts || []).filter(c => c.id !== itemId);
+        saveToCloud();
+        renderSpecificProductContracts();
     }
 
     // 制式合約清單
@@ -1326,6 +1374,7 @@ const firebaseConfig = {
                         <div style="font-size: 15px; font-weight: 800; color: var(--navy-primary);">${item.name}</div>
                         <span style="font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: var(--text-muted); font-weight: 600;">適用範圍：${item.category || "未分類"}</span>
                     </div>
+                    <button class="product-btn-action product-btn-del" style="font-size: 11px; padding: 3px 6px;" onclick="deleteStandardContractItem(${item.id})">🗑️ 刪除</button>
                 </div>
                 <div style="font-size: 13px; color: var(--navy-light); margin-top: 8px; background: #f8fafc; padding: 8px 10px; border-radius: 6px;">
                     ${item.summary || "（無摘要備註）"}
@@ -1337,6 +1386,13 @@ const firebaseConfig = {
                 ` : ''}
             </div>
         `).join('');
+    }
+
+    function deleteStandardContractItem(itemId) {
+        if (!confirm("確定要刪除此制式合約嗎？")) return;
+        appData.standardContracts = (appData.standardContracts || []).filter(c => c.id !== itemId);
+        saveToCloud();
+        renderStandardContracts();
     }
 
     // 處理右上角新增按鈕的行為
@@ -1372,6 +1428,55 @@ const firebaseConfig = {
         closeModal('add-product-group-modal');
         renderProductGroups();
         alert("已成功新增產品專區！");
+    }
+
+    // 編輯產品功能
+    function openEditProductGroupModal(productId) {
+        editingProductGroupId = productId;
+        const prod = (appData.productGroups || []).find(p => p.id === productId);
+        if (!prod) return;
+
+        document.getElementById('edit-product-group-name').value = prod.name;
+        document.getElementById('edit-product-group-desc').value = prod.desc || '';
+        openModal('edit-product-group-modal');
+    }
+
+    function confirmUpdateProductGroup() {
+        const name = document.getElementById('edit-product-group-name').value.trim();
+        const desc = document.getElementById('edit-product-group-desc').value.trim();
+        if (!name) return alert("產品名稱不得為空！");
+
+        const prod = (appData.productGroups || []).find(p => p.id === editingProductGroupId);
+        if (prod) {
+            prod.name = name;
+            prod.desc = desc;
+            saveToCloud();
+            closeModal('edit-product-group-modal');
+            renderProductGroups();
+            alert("產品名稱與簡介已成功更新！");
+        }
+    }
+
+    // 刪除產品功能（包含合約聯動檢查）
+    function deleteProductGroup(productId) {
+        const prod = (appData.productGroups || []).find(p => p.id === productId);
+        if (!prod) return;
+
+        const relatedContracts = (appData.productContracts || []).filter(c => c.productId === productId);
+        let confirmText = `確定要刪除產品專區「${prod.name}」嗎？`;
+        if (relatedContracts.length > 0) {
+            confirmText += `\n⚠️ 注意：此產品下包含 ${relatedContracts.length} 份合約，刪除產品將會一併移除這些合約紀錄！`;
+        }
+
+        if (confirm(confirmText)) {
+            // 刪除產品群組
+            appData.productGroups = (appData.productGroups || []).filter(p => p.id !== productId);
+            // 同步清理底下的合約
+            appData.productContracts = (appData.productContracts || []).filter(c => c.productId !== productId);
+            saveToCloud();
+            renderProductGroups();
+            alert(`已成功刪除「${prod.name}」專區！`);
+        }
     }
 
     function openNewContractItemModal() {
