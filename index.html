@@ -884,19 +884,28 @@ const firebaseConfig = {
         const toggleLink = document.getElementById('auth-toggle-link');
         const errorMsg = document.getElementById('auth-error-msg');
 
-        errorMsg.style.display = 'none';
+        if (errorMsg) errorMsg.style.display = 'none';
+
         if (isRegisterMode) {
-            title.innerText = "註冊全新法務帳號";
-            subtitle.innerText = "設定專屬帳密，所有實戰資料完全雲端加密隔離";
-            mainBtn.innerText = "立即註冊";
-            toggleLink.innerText = "已有帳號？點此登入";
+            if (title) title.innerText = "註冊全新法務帳號";
+            if (subtitle) subtitle.innerText = "設定專屬帳密，所有實戰資料完全雲端加密隔離";
+            if (mainBtn) mainBtn.innerText = "立即註冊";
+            if (toggleLink) toggleLink.innerText = "已有帳號？點此切換回登入";
         } else {
-            title.innerText = "Legal Ops Hub 登入";
-            subtitle.innerText = "登入專屬帳號以同步雲端實戰經驗與合約庫";
-            mainBtn.innerText = "登入工作台";
-            toggleLink.innerText = "還沒有帳號？點此免費註冊專屬工作台";
+            if (title) title.innerText = "Legal Ops Hub 登入";
+            if (subtitle) subtitle.innerText = "登入專屬帳號以同步雲端實戰經驗與合約庫";
+            if (mainBtn) mainBtn.innerText = "登入工作台";
+            if (toggleLink) toggleLink.innerText = "還沒有帳號？點此免費註冊專屬工作台";
         }
     }
+
+    // 頁面載入完成後主動綁定點擊，確保一定能點
+    window.addEventListener('load', function() {
+        const toggleBtn = document.getElementById('auth-toggle-link');
+        if (toggleBtn) {
+            toggleBtn.onclick = toggleAuthMode;
+        }
+    });
 
     async function handleAuthAction() {
         const email = document.getElementById('auth-email').value.trim();
