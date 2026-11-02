@@ -142,7 +142,7 @@
             text-align: left;
         }
 
-        /* 儀表板架構 */
+        /* 儀表板主架構 */
         header {
             max-width: 1400px;
             margin: 0 auto 24px auto;
@@ -458,6 +458,7 @@
             transition: width 0.3s ease;
         }
 
+        /* 彈窗樣式 */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -509,6 +510,25 @@
             padding: 14px;
             margin-bottom: 10px;
             background: #ffffff;
+        }
+
+        .product-group-card {
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 10px;
+            background: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-group-card:hover {
+            border-color: var(--brand-blue);
+            background: #eff6ff;
+            transform: translateX(4px);
         }
 
         .file-badge {
@@ -630,7 +650,7 @@
                     </div>
                     <div class="hub-main-card" onclick="openContractListModal('product')">
                         <h3>🚀 產品重要合約、條款</h3>
-                        <p>依產品區分之服務條款、隱私權、協議</p>
+                        <p>先選產品 ➔ 再檢視各產品專屬條款與合約</p>
                     </div>
                 </div>
                 <div style="font-size: 11px; color: var(--text-muted); text-align: center;">
@@ -700,13 +720,16 @@
         </div>
     </div>
 
-    <!-- Modal 2: 合約條款知識庫清單 -->
+    <!-- Modal 2: 合約條款知識庫清單（支援產品二層切換） -->
     <div class="modal-overlay" id="contract-hub-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('contract-hub-modal')">✕</button>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                <h2 id="contract-hub-title" style="font-size: 18px; color: var(--navy-dark);"></h2>
-                <button class="btn btn-brand" style="font-size: 12px; padding: 6px 12px;" onclick="openNewContractItemModal()">+ 新增合約條目</button>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button class="btn btn-sub" id="btn-product-back" style="display: none; padding: 4px 8px; font-size: 12px;" onclick="backToProductList()">⬅ 返回產品列表</button>
+                    <h2 id="contract-hub-title" style="font-size: 18px; color: var(--navy-dark);"></h2>
+                </div>
+                <button class="btn btn-brand" id="btn-add-contract-trigger" style="font-size: 12px; padding: 6px 12px;" onclick="handleContractAddAction()">+ 新增合約條目</button>
             </div>
             <div id="contract-items-container"></div>
         </div>
@@ -719,10 +742,10 @@
             <h3 style="margin-bottom: 12px;">新增合約 / 條款紀錄</h3>
             
             <div class="detail-label">合約名稱</div>
-            <input type="text" id="new-contract-name" placeholder="例：單向保密合約（中文版）">
+            <input type="text" id="new-contract-name" placeholder="例：平台服務協議、資料處理協議 (DPA)">
             
             <div class="detail-label" id="new-contract-type-label">產品/適用類別</div>
-            <input type="text" id="new-contract-category" placeholder="例：通用、企業版、行動 App">
+            <input type="text" id="new-contract-category" placeholder="例：通用、企業版、會員條款">
 
             <div class="detail-label">合約摘要 / 重點條款筆記</div>
             <textarea id="new-contract-summary" rows="3" placeholder="記載版本、賠償責任上限、管轄法院等核心爭點摘要..."></textarea>
@@ -731,6 +754,19 @@
             <input type="file" id="new-contract-file" style="margin-bottom: 16px;">
 
             <button class="btn btn-brand" id="btn-save-contract" style="width: 100%; justify-content: center;" onclick="confirmAddContractItem()">確認儲存合約</button>
+        </div>
+    </div>
+
+    <!-- Modal 3-B: 新增產品分類彈窗 -->
+    <div class="modal-overlay" id="add-product-group-modal">
+        <div class="modal-window" style="max-width: 420px;">
+            <button class="modal-close-btn" onclick="closeModal('add-product-group-modal')">✕</button>
+            <h3 style="margin-bottom: 12px;">🚀 新增產品線專區</h3>
+            <div class="detail-label">產品名稱</div>
+            <input type="text" id="new-product-group-name" placeholder="例：智慧醫療平台、行動電商 App">
+            <div class="detail-label">產品簡介 / 業務範疇</div>
+            <textarea id="new-product-group-desc" rows="2" placeholder="例：B2B 訂閱制醫療 SaaS，包含遠距看診與診所排程"></textarea>
+            <button class="btn btn-brand" style="width: 100%; justify-content: center;" onclick="confirmAddProductGroup()">確認建立產品專區</button>
         </div>
     </div>
 
@@ -805,7 +841,7 @@
 
 <script>
     // ================= ⚠️ 請在此填入妳在 Firebase 取得的專案金鑰 ⚠️ =================
-    const firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyAQGvIT3qkmqjcEaC1l9tAGRmmKuWVgIDw",
   authDomain: "legal-ops-hub-f565d.firebaseapp.com",
   projectId: "legal-ops-hub-f565d",
@@ -959,7 +995,14 @@
     let appData = {
         issues: [],
         standardContracts: [],
-        productContracts: [],
+        productGroups: [
+            { id: 1, name: "SaaS 雲端平台", desc: "B2B 企業端訂閱服務，包含主約、SLA 及隱私協議" },
+            { id: 2, name: "行動 App 服務", desc: "面向終端消費者的 App 服務條款與推播授權政策" }
+        ],
+        productContracts: [
+            { id: 101, productId: 1, name: "SaaS 平台服務條款 (Terms of Service)", category: "主約", summary: "SLA 99.9% 服務可用性，責任上限為過去 12 個月實收費用。", fileId: null, fileName: null },
+            { id: 102, productId: 2, name: "App 使用者隱私權政策 (Privacy Policy)", category: "法遵政策", summary: "整合第三方廣告 SDK 宣告與跨國資料傳輸條款，符合個資法規。", fileId: null, fileName: null }
+        ],
         projects: [],
         vocabIndex: 0
     };
@@ -981,7 +1024,8 @@
 
     let currentFilter = "all";
     let activeIssueId = null;
-    let currentContractType = "standard";
+    let currentContractType = "standard"; // 'standard' 或 'product'
+    let currentSelectedProductId = null; // 當前正在檢視的產品 ID
     let activeProjectId = null;
 
     // 監聽專屬個人雲端資料
@@ -993,6 +1037,12 @@
                 if (doc.exists) {
                     const remoteData = doc.data();
                     appData = remoteData.appData || appData;
+                    if (!appData.productGroups) {
+                        appData.productGroups = [
+                            { id: 1, name: "SaaS 雲端平台", desc: "B2B 企業端訂閱服務" },
+                            { id: 2, name: "行動 App 服務", desc: "面向消費者的 App 服務條款" }
+                        ];
+                    }
                     userVocabList = remoteData.userVocabList || userVocabList;
                 } else {
                     saveToCloud();
@@ -1162,21 +1212,80 @@
         }
     }
 
-    // --- 合約知識庫模組 ---
+    // ================= 📂 合約知識庫模組（兩層式產品架構） =================
     function openContractListModal(type) {
         currentContractType = type;
-        const titleText = type === 'standard' ? "📌 制式合約、條款清單" : "🚀 產品重要合約、條款清單";
-        document.getElementById('contract-hub-title').innerText = titleText;
-        renderContractItemsList();
+        currentSelectedProductId = null; // 重置已選產品
+        const backBtn = document.getElementById('btn-product-back');
+        const triggerBtn = document.getElementById('btn-add-contract-trigger');
+
+        if (type === 'standard') {
+            backBtn.style.display = 'none';
+            document.getElementById('contract-hub-title').innerText = "📌 制式合約、條款清單";
+            triggerBtn.innerText = "+ 新增制式合約";
+            renderStandardContracts();
+        } else {
+            // 進入產品分類的第一層：產品列表
+            backBtn.style.display = 'none';
+            document.getElementById('contract-hub-title').innerText = "🚀 產品清單 (請點選進入各產品專區)";
+            triggerBtn.innerText = "+ 新增產品線";
+            renderProductGroups();
+        }
         openModal('contract-hub-modal');
     }
 
-    function renderContractItemsList() {
-        const list = currentContractType === 'standard' ? (appData.standardContracts || []) : (appData.productContracts || []);
+    // 第一層：渲染產品列表
+    function renderProductGroups() {
         const container = document.getElementById('contract-items-container');
+        const groups = appData.productGroups || [];
 
-        if (!list || list.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">目前尚無合約，請點擊右上角新增。</div>`;
+        if (groups.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">目前尚無產品專區，請點擊右上角新增產品線。</div>`;
+            return;
+        }
+
+        container.innerHTML = groups.map(p => {
+            const count = (appData.productContracts || []).filter(c => c.productId === p.id).length;
+            return `
+                <div class="product-group-card" onclick="enterProductGroup(${p.id})">
+                    <div>
+                        <div style="font-size: 15px; font-weight: 800; color: var(--navy-primary);">${p.name}</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${p.desc || "（無描述）"}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 12px; font-weight: 700;">📁 ${count} 份合約</span>
+                        <div style="font-size: 11px; color: var(--brand-blue); margin-top: 4px; font-weight: 600;">進入檢視 ➔</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 點擊產品進入第二層：特定產品的合約清單
+    function enterProductGroup(productId) {
+        currentSelectedProductId = productId;
+        const prod = (appData.productGroups || []).find(p => p.id === productId);
+        document.getElementById('btn-product-back').style.display = 'inline-flex';
+        document.getElementById('contract-hub-title').innerText = "🚀 " + (prod ? prod.name : "產品合約");
+        document.getElementById('btn-add-contract-trigger').innerText = "+ 新增此產品之合約";
+        renderSpecificProductContracts();
+    }
+
+    function backToProductList() {
+        currentSelectedProductId = null;
+        document.getElementById('btn-product-back').style.display = 'none';
+        document.getElementById('contract-hub-title').innerText = "🚀 產品清單 (請點選進入各產品專區)";
+        document.getElementById('btn-add-contract-trigger').innerText = "+ 新增產品線";
+        renderProductGroups();
+    }
+
+    // 第二層：特定產品之合約清單
+    function renderSpecificProductContracts() {
+        const container = document.getElementById('contract-items-container');
+        const list = (appData.productContracts || []).filter(c => c.productId === currentSelectedProductId);
+
+        if (list.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">此產品目前尚無合約，請點擊右上角新增。</div>`;
             return;
         }
 
@@ -1185,7 +1294,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <div>
                         <div style="font-size: 15px; font-weight: 800; color: var(--navy-primary);">${item.name}</div>
-                        <span style="font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: var(--text-muted); font-weight: 600;">類別：${item.category || "未分類"}</span>
+                        <span style="font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: var(--text-muted); font-weight: 600;">條款類別：${item.category || "未分類"}</span>
                     </div>
                 </div>
                 <div style="font-size: 13px; color: var(--navy-light); margin-top: 8px; background: #f8fafc; padding: 8px 10px; border-radius: 6px;">
@@ -1198,6 +1307,71 @@
                 ` : ''}
             </div>
         `).join('');
+    }
+
+    // 制式合約清單
+    function renderStandardContracts() {
+        const container = document.getElementById('contract-items-container');
+        const list = appData.standardContracts || [];
+
+        if (list.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">目前尚無制式合約，請點擊右上角新增。</div>`;
+            return;
+        }
+
+        container.innerHTML = list.map(item => `
+            <div class="contract-item-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <div style="font-size: 15px; font-weight: 800; color: var(--navy-primary);">${item.name}</div>
+                        <span style="font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: var(--text-muted); font-weight: 600;">適用範圍：${item.category || "未分類"}</span>
+                    </div>
+                </div>
+                <div style="font-size: 13px; color: var(--navy-light); margin-top: 8px; background: #f8fafc; padding: 8px 10px; border-radius: 6px;">
+                    ${item.summary || "（無摘要備註）"}
+                </div>
+                ${item.fileId ? `
+                    <div style="margin-top: 8px;">
+                        <button class="file-badge" onclick="downloadFileFromDB('${item.fileId}', '${item.fileName}')">📥 下載/檢視附件：${item.fileName}</button>
+                    </div>
+                ` : ''}
+            </div>
+        `).join('');
+    }
+
+    // 處理右上角新增按鈕的行為
+    function handleContractAddAction() {
+        if (currentContractType === 'standard') {
+            openNewContractItemModal();
+        } else {
+            if (currentSelectedProductId === null) {
+                // 在第一層：新增產品線
+                document.getElementById('new-product-group-name').value = '';
+                document.getElementById('new-product-group-desc').value = '';
+                openModal('add-product-group-modal');
+            } else {
+                // 在第二層：新增該產品的合約
+                openNewContractItemModal();
+            }
+        }
+    }
+
+    function confirmAddProductGroup() {
+        const name = document.getElementById('new-product-group-name').value.trim();
+        const desc = document.getElementById('new-product-group-desc').value.trim();
+        if (!name) return alert("請輸入產品名稱！");
+
+        if (!appData.productGroups) appData.productGroups = [];
+        appData.productGroups.push({
+            id: Date.now(),
+            name,
+            desc
+        });
+
+        saveToCloud();
+        closeModal('add-product-group-modal');
+        renderProductGroups();
+        alert("已成功新增產品專區！");
     }
 
     function openNewContractItemModal() {
@@ -1221,10 +1395,6 @@
         saveBtn.innerText = "儲存中，請稍候...";
 
         try {
-            if (currentContractType === 'standard' && !appData.standardContracts) appData.standardContracts = [];
-            if (currentContractType === 'product' && !appData.productContracts) appData.productContracts = [];
-
-            const targetList = currentContractType === 'standard' ? appData.standardContracts : appData.productContracts;
             let fileId = null;
             let fileName = null;
 
@@ -1235,19 +1405,34 @@
                 await storeBlob(fileId, file);
             }
 
-            targetList.unshift({
-                id: Date.now(),
-                name,
-                category: category || "未分類",
-                summary,
-                fileId,
-                fileName
-            });
+            if (currentContractType === 'standard') {
+                if (!appData.standardContracts) appData.standardContracts = [];
+                appData.standardContracts.unshift({
+                    id: Date.now(),
+                    name,
+                    category: category || "通用",
+                    summary,
+                    fileId,
+                    fileName
+                });
+                renderStandardContracts();
+            } else {
+                if (!appData.productContracts) appData.productContracts = [];
+                appData.productContracts.unshift({
+                    id: Date.now(),
+                    productId: currentSelectedProductId,
+                    name,
+                    category: category || "產品條款",
+                    summary,
+                    fileId,
+                    fileName
+                });
+                renderSpecificProductContracts();
+            }
 
             saveToCloud();
             closeModal('add-contract-item-modal');
-            renderContractItemsList();
-            alert("合約資料已成功同步儲存！");
+            alert("合約已成功儲存至專屬分類！");
         } catch (err) {
             alert("儲存檔案失敗：" + err.message);
         } finally {
