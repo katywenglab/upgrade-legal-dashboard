@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Legal Ops & Knowledge Hub | 法務實戰與知識儀表板</title>
 
-    <!-- Firebase SDK 9.x Compat -->
+    <!-- Firebase SDK 9.x Compat (雲端認證與資料庫) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -53,7 +53,7 @@
             line-height: 1.5;
         }
 
-        /* 🔒 登入 / 註冊全螢幕驗證面板 */
+        /* 🔒 登入/註冊彈窗遮罩 */
         #auth-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -68,7 +68,7 @@
         .auth-card {
             background: #ffffff;
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             border-radius: var(--radius-lg);
             padding: 36px 30px;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
@@ -105,6 +105,13 @@
             background: #ffffff;
         }
 
+        .auth-btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
         .auth-btn {
             width: 100%;
             background: var(--brand-blue);
@@ -115,35 +122,35 @@
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 4px;
+            transition: all 0.2s;
         }
 
         .auth-btn:hover { background: var(--brand-blue-hover); }
-
-        .auth-switch-text {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 16px;
-            cursor: pointer;
-            text-decoration: underline;
-        }
+        .auth-btn-reg { background: var(--navy-primary); }
+        .auth-btn-reg:hover { background: var(--navy-dark); }
 
         .auth-error {
             color: #ef4444;
-            font-size: 12px;
-            margin-top: 10px;
+            font-size: 13px;
+            margin-top: 14px;
             display: none;
             font-weight: 600;
+            background: #fef2f2;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #fecaca;
+            text-align: left;
         }
 
-        /* 儀表板主架構 */
+        /* 儀表板架構 */
         header {
             max-width: 1400px;
             margin: 0 auto 24px auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .header-title h1 {
@@ -187,6 +194,7 @@
             font-weight: 600;
             color: var(--text-muted);
             cursor: pointer;
+            transition: all 0.2s;
         }
 
         .btn-logout:hover { color: #ef4444; border-color: #fca5a5; }
@@ -534,32 +542,34 @@
 </head>
 <body>
 
-    <!-- 🔒 登入 / 註冊全螢幕驗證面板 -->
+    <!-- 🔒 登入/註冊彈窗遮罩 -->
     <div id="auth-overlay">
         <div class="auth-card">
             <div style="font-size: 36px; margin-bottom: 10px;">⚖️</div>
-            <h2 id="auth-title">Legal Ops Hub 登入</h2>
-            <p id="auth-subtitle">登入專屬帳號以同步雲端實戰經驗與合約庫</p>
+            <h2>Legal Ops Hub</h2>
+            <p>請輸入您的專屬帳號與密碼以同步雲端資料</p>
 
             <input type="email" id="auth-email" class="auth-input" placeholder="電子信箱 (例：you@law.com)">
-            <input type="password" id="auth-pwd" class="auth-input" placeholder="密碼 (至少 6 碼)" onkeydown="if(event.key==='Enter') handleAuthAction()">
+            <input type="password" id="auth-pwd" class="auth-input" placeholder="密碼 (至少 6 碼)" onkeydown="if(event.key==='Enter') handleAuthAction('login')">
 
-            <button class="auth-btn" id="auth-main-btn" onclick="handleAuthAction()">登入工作台</button>
+            <!-- 雙按鈕獨立呈現，不用切換 -->
+            <div class="auth-btn-group">
+                <button type="button" class="auth-btn" onclick="handleAuthAction('login')">登入工作台</button>
+                <button type="button" class="auth-btn auth-btn-reg" onclick="handleAuthAction('register')">註冊新帳號</button>
+            </div>
+
             <div id="auth-error-msg" class="auth-error"></div>
-
-<button type="button" class="auth-switch-text" id="auth-toggle-link" style="background:none; border:none; width:100%; cursor:pointer; font-size:13px; color:#2563eb; margin-top:16px; text-decoration:underline;">
-    還沒有帳號？點此免費註冊專屬工作台
-</button>
         </div>
     </div>
 
+    <!-- 頂部 Header -->
     <header>
         <div class="header-title">
             <h1>⚖️ Legal Ops & Knowledge Hub</h1>
             <p>實戰爭點知識・制式與產品合約庫・專案進度追蹤・法學英文歷程</p>
         </div>
         <div class="header-actions">
-            <span class="user-email-badge" id="current-user-badge">載入中...</span>
+            <span class="user-email-badge" id="current-user-badge">連線中...</span>
             <button class="btn-logout" onclick="logout()">登出</button>
         </div>
     </header>
@@ -567,7 +577,7 @@
     <div class="dashboard-container">
         
         <div class="col-main">
-            
+            <!-- 快速記錄新爭點 -->
             <div class="card">
                 <div class="card-header">
                     <h2>💡 快速記錄新爭點 / 實戰心得</h2>
@@ -587,6 +597,7 @@
                 </div>
             </div>
 
+            <!-- 實戰經驗庫 -->
             <div class="card">
                 <div class="card-header">
                     <h2>📚 實戰經驗與爭點庫 (點擊展開檢視、編輯名稱與附件)</h2>
@@ -607,7 +618,7 @@
         </div>
 
         <div class="col-sub">
-            
+            <!-- 合約知識庫 -->
             <div class="card">
                 <div class="card-header">
                     <h2>📁 合約條款知識庫</h2>
@@ -627,6 +638,7 @@
                 </div>
             </div>
 
+            <!-- 每日法學英文 -->
             <div class="card">
                 <div class="card-header">
                     <h2>📖 每日法學英文 (Daily Legal English)</h2>
@@ -642,6 +654,7 @@
                 </div>
             </div>
 
+            <!-- 核心專案進度追蹤 -->
             <div class="card">
                 <div class="card-header">
                     <h2>🎯 核心專案進度追蹤</h2>
@@ -658,7 +671,9 @@
         copyright @凱蒂嗡嗡嗡
     </footer>
 
-    <!-- Modals -->
+    <!-- ================= 彈窗模組 ================= -->
+
+    <!-- Modal 1: 爭點詳細資料 -->
     <div class="modal-overlay" id="issue-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('issue-modal')">✕</button>
@@ -685,6 +700,7 @@
         </div>
     </div>
 
+    <!-- Modal 2: 合約條款知識庫清單 -->
     <div class="modal-overlay" id="contract-hub-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('contract-hub-modal')">✕</button>
@@ -696,6 +712,7 @@
         </div>
     </div>
 
+    <!-- Modal 3: 新增合約條目 -->
     <div class="modal-overlay" id="add-contract-item-modal">
         <div class="modal-window" style="max-width: 480px;">
             <button class="modal-close-btn" onclick="closeModal('add-contract-item-modal')">✕</button>
@@ -717,6 +734,7 @@
         </div>
     </div>
 
+    <!-- Modal 4: 自訂法學英文單字 -->
     <div class="modal-overlay" id="add-vocab-modal">
         <div class="modal-window" style="max-width: 460px;">
             <button class="modal-close-btn" onclick="closeModal('add-vocab-modal')">✕</button>
@@ -738,6 +756,7 @@
         </div>
     </div>
 
+    <!-- Modal 5: 英文歷程庫 -->
     <div class="modal-overlay" id="vocab-history-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('vocab-history-modal')">✕</button>
@@ -746,6 +765,7 @@
         </div>
     </div>
 
+    <!-- Modal 6: 專案彈窗（編輯名稱、鵝黃色進度、筆記與檔案） -->
     <div class="modal-overlay" id="project-detail-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('project-detail-modal')">✕</button>
@@ -772,6 +792,7 @@
         </div>
     </div>
 
+    <!-- Modal 7: 新增重點專案 -->
     <div class="modal-overlay" id="add-project-modal">
         <div class="modal-window" style="max-width: 420px;">
             <button class="modal-close-btn" onclick="closeModal('add-project-modal')">✕</button>
@@ -784,7 +805,7 @@
 
 <script>
     // ================= ⚠️ 請在此填入妳在 Firebase 取得的專案金鑰 ⚠️ =================
-const firebaseConfig = {
+    const firebaseConfig = {
   apiKey: "AIzaSyAQGvIT3qkmqjcEaC1l9tAGRmmKuWVgIDw",
   authDomain: "legal-ops-hub-f565d.firebaseapp.com",
   projectId: "legal-ops-hub-f565d",
@@ -793,13 +814,20 @@ const firebaseConfig = {
   appId: "1:467720779560:web:0baae8e9e5c51fa46dc21d",
   measurementId: "G-3MJ79VGVTC"
 };
+
     // 初始化 Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    let auth = null;
+    let db = null;
+
+    try {
+        firebase.initializeApp(firebaseConfig);
+        auth = firebase.auth();
+        db = firebase.firestore();
+    } catch (e) {
+        console.error("Firebase 初始化失敗:", e);
+    }
 
     let currentUser = null;
-    let isRegisterMode = false;
 
     // --- 本地 IndexedDB 模組（儲存 Word、PDF 檔案） ---
     const DB_NAME = 'LegalOpsFilesStore_v3';
@@ -864,75 +892,67 @@ const firebaseConfig = {
     }
 
     // --- 使用者驗證監聽 ---
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            currentUser = user;
-            document.getElementById('auth-overlay').style.display = 'none';
-            document.getElementById('current-user-badge').innerText = '👤 ' + user.email;
-            initUserDataListener();
-        } else {
-            currentUser = null;
-            document.getElementById('auth-overlay').style.display = 'flex';
-        }
-    });
-
-    function toggleAuthMode() {
-        isRegisterMode = !isRegisterMode;
-        const title = document.getElementById('auth-title');
-        const subtitle = document.getElementById('auth-subtitle');
-        const mainBtn = document.getElementById('auth-main-btn');
-        const toggleLink = document.getElementById('auth-toggle-link');
-        const errorMsg = document.getElementById('auth-error-msg');
-
-        if (errorMsg) errorMsg.style.display = 'none';
-
-        if (isRegisterMode) {
-            if (title) title.innerText = "註冊全新法務帳號";
-            if (subtitle) subtitle.innerText = "設定專屬帳密，所有實戰資料完全雲端加密隔離";
-            if (mainBtn) mainBtn.innerText = "立即註冊";
-            if (toggleLink) toggleLink.innerText = "已有帳號？點此切換回登入";
-        } else {
-            if (title) title.innerText = "Legal Ops Hub 登入";
-            if (subtitle) subtitle.innerText = "登入專屬帳號以同步雲端實戰經驗與合約庫";
-            if (mainBtn) mainBtn.innerText = "登入工作台";
-            if (toggleLink) toggleLink.innerText = "還沒有帳號？點此免費註冊專屬工作台";
-        }
+    if (auth) {
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('auth-overlay').style.display = 'none';
+                document.getElementById('current-user-badge').innerText = '👤 ' + user.email;
+                initUserDataListener();
+            } else {
+                currentUser = null;
+                document.getElementById('auth-overlay').style.display = 'flex';
+                document.getElementById('current-user-badge').innerText = '未登入';
+            }
+        });
     }
 
-    // 頁面載入完成後主動綁定點擊，確保一定能點
-    window.addEventListener('load', function() {
-        const toggleBtn = document.getElementById('auth-toggle-link');
-        if (toggleBtn) {
-            toggleBtn.onclick = toggleAuthMode;
-        }
-    });
-
-    async function handleAuthAction() {
+    // 處理登入與註冊（雙模式）
+    async function handleAuthAction(mode) {
         const email = document.getElementById('auth-email').value.trim();
         const pwd = document.getElementById('auth-pwd').value.trim();
         const errEl = document.getElementById('auth-error-msg');
 
+        errEl.style.display = 'none';
+
         if (!email || !pwd) {
-            errEl.innerText = "請填寫完整帳號與密碼！";
+            errEl.innerText = "請填寫完整電子信箱與密碼！";
+            errEl.style.display = 'block';
+            return;
+        }
+
+        if (pwd.length < 6) {
+            errEl.innerText = "密碼長度至少需要 6 碼！";
             errEl.style.display = 'block';
             return;
         }
 
         try {
-            if (isRegisterMode) {
+            if (!auth) {
+                throw new Error("Firebase 尚未正確連線，請檢查程式碼中的 firebaseConfig 金鑰是否已正確填入！");
+            }
+
+            if (mode === 'register') {
                 await auth.createUserWithEmailAndPassword(email, pwd);
-                alert("註冊成功！系統已為您建立專屬雲端空間。");
+                alert("🎉 註冊成功！系統已為您建立專屬雲端空間。");
             } else {
                 await auth.signInWithEmailAndPassword(email, pwd);
             }
         } catch (error) {
-            errEl.innerText = "驗證失敗：" + error.message;
+            console.error(error);
+            let msg = error.message;
+            if (error.code === 'auth/invalid-api-key') msg = "Firebase API Key 無效，請檢查程式碼中的金鑰。";
+            if (error.code === 'auth/email-already-in-use') msg = "該信箱已被註冊，請直接點選「登入工作台」！";
+            if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') msg = "帳號或密碼錯誤，請重新確認。";
+            if (error.code === 'auth/invalid-email') msg = "電子信箱格式不正確。";
+            
+            errEl.innerText = "提示：" + msg;
             errEl.style.display = 'block';
         }
     }
 
     function logout() {
-        auth.signOut();
+        if (auth) auth.signOut();
     }
 
     // --- 資料模型與雲端同步 ---
@@ -966,7 +986,7 @@ const firebaseConfig = {
 
     // 監聽專屬個人雲端資料
     function initUserDataListener() {
-        if (!currentUser) return;
+        if (!currentUser || !db) return;
 
         db.collection("user_legal_data").doc(currentUser.uid)
             .onSnapshot((doc) => {
@@ -980,16 +1000,18 @@ const firebaseConfig = {
                 renderIssues();
                 renderDailyVocab();
                 renderProjects();
+            }, (err) => {
+                console.error("讀取雲端資料失敗:", err);
             });
     }
 
     function saveToCloud() {
-        if (!currentUser) return;
+        if (!currentUser || !db) return;
         db.collection("user_legal_data").doc(currentUser.uid).set({
             appData,
             userVocabList,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        }).catch(err => console.error("雲端同步失敗:", err));
     }
 
     // --- 爭點實戰經驗模組 ---
@@ -1286,7 +1308,7 @@ const firebaseConfig = {
         const container = document.getElementById('vocab-history-list');
         container.innerHTML = userVocabList.map((item, idx) => `
             <div style="border-bottom: 1px solid var(--border); padding: 12px 0;">
-                <div style="font-size: 15px; font-weight: 800; color: var(--brand-blue);">${idx + 1}.${item.word}</div>
+                <div style="font-size: 15px; font-weight: 800; color: var(--brand-blue);">${idx + 1}. ${item.word}</div>
                 <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">${item.pronounce}</div>
                 <div style="font-size: 13px; font-weight: 600; margin-bottom: 6px;">${item.meaning}</div>
                 <div style="font-size: 12px; background: #f8fafc; padding: 6px 10px; border-left: 2px solid #38bdf8; border-radius: 4px; color: var(--text-main); font-style: italic;">${item.clause}</div>
@@ -1310,4 +1332,123 @@ const firebaseConfig = {
                     <span class="project-name">${proj.name}</span>
                     <span class="project-status-tag">${proj.progress}%</span>
                 </div>
-                <div class="progress-
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: ${proj.progress}%;"></div>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; display:flex; justify-content:space-between;">
+                    <span>🎯 目標日：${proj.dueDate || "未設定"}</span>
+                    <span>檢視進度與編輯 ➔</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function openNewProjectModal() {
+        document.getElementById('new-proj-title').value = '';
+        document.getElementById('new-proj-duedate').value = '';
+        openModal('add-project-modal');
+    }
+
+    function confirmAddProject() {
+        const title = document.getElementById('new-proj-title').value.trim();
+        const dueDate = document.getElementById('new-proj-duedate').value;
+        if (!title) return alert("請輸入專案名稱！");
+
+        if (!appData.projects) appData.projects = [];
+        appData.projects.push({
+            id: Date.now(),
+            name: title,
+            dueDate,
+            progress: 0,
+            notes: "",
+            files: []
+        });
+        saveToCloud();
+        closeModal('add-project-modal');
+        renderProjects();
+    }
+
+    function openProjectModal(id) {
+        activeProjectId = id;
+        const proj = appData.projects.find(p => p.id === id);
+        if (!proj) return;
+
+        document.getElementById('modal-proj-edit-name').value = proj.name;
+        document.getElementById('modal-proj-progress').value = proj.progress;
+        document.getElementById('modal-proj-percent-text').innerText = proj.progress + "%";
+        document.getElementById('modal-proj-notes').value = proj.notes || "";
+        document.getElementById('modal-proj-file-input').value = '';
+
+        renderProjectFiles(proj);
+        openModal('project-detail-modal');
+    }
+
+    function renderProjectFiles(proj) {
+        const container = document.getElementById('modal-proj-attachments');
+        if (!proj.files || proj.files.length === 0) {
+            container.innerHTML = `<span style="font-size: 12px; color: var(--text-muted);">尚無上傳附件</span>`;
+            return;
+        }
+
+        container.innerHTML = proj.files.map(f => `
+            <div style="margin-top: 4px;">
+                <button class="file-badge" onclick="downloadFileFromDB('${f.fileId}', '${f.name}')">📥 下載附件：${f.name}</button>
+            </div>
+        `).join('');
+    }
+
+    function updateProgressDisplay(val) {
+        document.getElementById('modal-proj-percent-text').innerText = val + "%";
+    }
+
+    async function saveProjectDetails() {
+        const saveBtn = document.getElementById('btn-save-project');
+        const proj = appData.projects.find(p => p.id === activeProjectId);
+        if (!proj) return;
+
+        const updatedName = document.getElementById('modal-proj-edit-name').value.trim();
+        if (!updatedName) return alert("專案名稱不得為空！");
+
+        saveBtn.disabled = true;
+        saveBtn.innerText = "儲存中...";
+
+        try {
+            proj.name = updatedName;
+            proj.progress = parseInt(document.getElementById('modal-proj-progress').value) || 0;
+            proj.notes = document.getElementById('modal-proj-notes').value;
+
+            const fileInput = document.getElementById('modal-proj-file-input');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const fileId = 'proj_blob_' + Date.now();
+                await storeBlob(fileId, file);
+
+                if (!proj.files) proj.files = [];
+                proj.files.push({ fileId, name: file.name });
+            }
+
+            saveToCloud();
+            renderProjects();
+            renderProjectFiles(proj);
+            document.getElementById('modal-proj-file-input').value = '';
+            alert("專案名稱、進度與附件已儲存！");
+        } catch (err) {
+            alert("專案儲存失敗：" + err.message);
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerText = "儲存名稱、進度與檔案";
+        }
+    }
+
+    // Modal 小工具
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal-overlay')) {
+            event.target.style.display = 'none';
+        }
+    };
+</script>
+</body>
+</html>
