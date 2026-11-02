@@ -18,6 +18,11 @@
             --border: #e2e8f0;
             --border-hover: #cbd5e1;
 
+            /* 鵝黃色系 (Soft Warm Yellow) */
+            --yellow-accent: #f59e0b;
+            --yellow-progress: #fcd34d;
+            --yellow-progress-bg: #fef3c7;
+
             --cat-litigation: #fee2e2;
             --cat-litigation-text: #991b1b;
             --cat-nonlitigation: #e0e7ff;
@@ -298,6 +303,7 @@
             font-style: italic;
         }
 
+        /* 專案卡片與鵝黃色進度條 */
         .project-row {
             padding: 12px 14px;
             border: 1px solid var(--border);
@@ -308,7 +314,7 @@
             transition: border-color 0.2s;
         }
 
-        .project-row:hover { border-color: var(--brand-blue); }
+        .project-row:hover { border-color: var(--yellow-accent); }
 
         .project-row-top {
             display: flex;
@@ -318,19 +324,21 @@
         }
 
         .project-name { font-size: 13px; font-weight: 700; color: var(--navy-primary); }
-        .project-status-tag { font-size: 11px; font-weight: 700; color: var(--brand-blue); }
+        .project-status-tag { font-size: 11px; font-weight: 800; color: #b45309; }
 
         .progress-bar-bg {
-            height: 6px;
-            background: #e2e8f0;
+            height: 7px;
+            background: var(--yellow-progress-bg);
             border-radius: 4px;
             overflow: hidden;
+            border: 1px solid #fde68a;
         }
 
         .progress-bar-fill {
             height: 100%;
-            background: var(--brand-blue);
+            background: linear-gradient(90deg, #fde047 0%, #facc15 100%);
             border-radius: 4px;
+            transition: width 0.3s ease;
         }
 
         .modal-overlay {
@@ -450,7 +458,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h2>📚 實戰經驗與爭點庫 (點擊展開檢視與追加紀錄)</h2>
+                    <h2>📚 實戰經驗與爭點庫 (點擊展開檢視、編輯名稱與附件)</h2>
                     <input type="text" id="issue-search" placeholder="🔍 搜尋關鍵字..." style="width: 180px; margin-bottom: 0;" oninput="renderIssues()">
                 </div>
 
@@ -519,26 +527,36 @@
         copyright @凱蒂嗡嗡嗡
     </footer>
 
-    <!-- Modals -->
+    <!-- ================= 彈窗區塊 (Modals) ================= -->
+
+    <!-- Modal 1: 爭點詳細資料彈窗（支援編輯標題、追加補充、上傳附件） -->
     <div class="modal-overlay" id="issue-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('issue-modal')">✕</button>
             <div id="modal-issue-badge" style="margin-bottom: 8px;"></div>
-            <h2 id="modal-issue-title" style="font-size: 18px; margin-bottom: 6px; color: var(--navy-dark);"></h2>
-            <div id="modal-issue-date" style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;"></div>
+            
+            <div class="detail-label">爭點 / 專案名稱 (可直接編輯修改)</div>
+            <input type="text" id="modal-issue-edit-title" style="font-size: 15px; font-weight: 700; color: var(--navy-dark); margin-bottom: 6px;">
+
+            <div id="modal-issue-date" style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;"></div>
             
             <div class="detail-label">📌 核心爭點分析與原始結論</div>
             <div class="detail-block" id="modal-issue-detail"></div>
 
             <div class="detail-label">➕ 追加新進展 / 後續實務補充筆記</div>
-            <textarea id="modal-issue-append" rows="4" placeholder="在此輸入後續主管反饋、訴訟最新判決要旨，或補充的法條見解..."></textarea>
+            <textarea id="modal-issue-append" rows="3" placeholder="在此輸入後續主管反饋、訴訟最新判決要旨，或補充的法條見解..."></textarea>
             
+            <div class="detail-label">📎 關聯文件與附件 (訴狀、裁判書、公文)</div>
+            <input type="file" id="modal-issue-file-input" style="margin-bottom: 8px;">
+            <div id="modal-issue-attachments" style="margin-bottom: 16px;"></div>
+
             <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
-                <button class="btn btn-brand" onclick="saveAppendedIssueNote()">儲存並追加補充內容</button>
+                <button class="btn btn-brand" id="btn-save-issue-modal" onclick="saveIssueModalChanges()">儲存名稱、筆記與新附件</button>
             </div>
         </div>
     </div>
 
+    <!-- Modal 2: 合約條款知識庫清單 -->
     <div class="modal-overlay" id="contract-hub-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('contract-hub-modal')">✕</button>
@@ -550,6 +568,7 @@
         </div>
     </div>
 
+    <!-- Modal 3: 新增合約條目 -->
     <div class="modal-overlay" id="add-contract-item-modal">
         <div class="modal-window" style="max-width: 480px;">
             <button class="modal-close-btn" onclick="closeModal('add-contract-item-modal')">✕</button>
@@ -571,6 +590,7 @@
         </div>
     </div>
 
+    <!-- Modal 4: 自訂法學英文單字 -->
     <div class="modal-overlay" id="add-vocab-modal">
         <div class="modal-window" style="max-width: 460px;">
             <button class="modal-close-btn" onclick="closeModal('add-vocab-modal')">✕</button>
@@ -592,6 +612,7 @@
         </div>
     </div>
 
+    <!-- Modal 5: 英文歷程庫 -->
     <div class="modal-overlay" id="vocab-history-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('vocab-history-modal')">✕</button>
@@ -600,15 +621,18 @@
         </div>
     </div>
 
+    <!-- Modal 6: 專案彈窗（支援編輯專案名稱、進度、筆記與檔案） -->
     <div class="modal-overlay" id="project-detail-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('project-detail-modal')">✕</button>
-            <h2 id="modal-proj-name" style="margin-bottom: 12px; color: var(--navy-dark);"></h2>
+            
+            <div class="detail-label">專案名稱 (可直接編輯修改)</div>
+            <input type="text" id="modal-proj-edit-name" style="font-size: 16px; font-weight: 700; color: var(--navy-dark); margin-bottom: 12px;">
             
             <div class="detail-label">📊 當前進度百分比 (%)</div>
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
                 <input type="range" id="modal-proj-progress" min="0" max="100" style="flex: 1; margin-bottom: 0;" oninput="updateProgressDisplay(this.value)">
-                <span id="modal-proj-percent-text" style="font-weight: 700; width: 45px;"></span>
+                <span id="modal-proj-percent-text" style="font-weight: 800; width: 45px; color: #b45309;"></span>
             </div>
 
             <div class="detail-label">📋 專案細項、待辦與重要 Milestone</div>
@@ -619,11 +643,12 @@
             <div id="modal-proj-attachments" style="margin-bottom: 16px;"></div>
 
             <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                <button class="btn btn-brand" id="btn-save-project" onclick="saveProjectDetails()">儲存進度與檔案</button>
+                <button class="btn btn-brand" id="btn-save-project" onclick="saveProjectDetails()">儲存名稱、進度與檔案</button>
             </div>
         </div>
     </div>
 
+    <!-- Modal 7: 新增重點專案 -->
     <div class="modal-overlay" id="add-project-modal">
         <div class="modal-window" style="max-width: 420px;">
             <button class="modal-close-btn" onclick="closeModal('add-project-modal')">✕</button>
@@ -635,8 +660,8 @@
     </div>
 
 <script>
-    // --- 1. IndexedDB 核心模組（支援高達數 GB 的本地大檔案儲存） ---
-    const DB_NAME = 'LegalOpsFilesStore_v1';
+    // --- 1. IndexedDB 核心模組（支援超大容量檔案儲存） ---
+    const DB_NAME = 'LegalOpsFilesStore_v2';
     const DB_VERSION = 1;
     const STORE_NAME = 'blobs';
     let dbPromise = null;
@@ -687,7 +712,7 @@
             const url = URL.createObjectURL(record.blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = record.name || fallbackName || 'contract_file';
+            a.download = record.name || fallbackName || 'legal_file';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -697,8 +722,8 @@
         }
     }
 
-    // --- 2. 資料模型與同步 ---
-    let userVocabList = JSON.parse(localStorage.getItem('legal_vocab_custom_v3')) || [
+    // --- 2. 資料模型與持久化 ---
+    let userVocabList = JSON.parse(localStorage.getItem('legal_vocab_custom_v4')) || [
         {
             word: "Indemnification",
             pronounce: "[ɪnˌdɛmnəfɪˈkeɪʃən] (n.) 補償、損害免責",
@@ -725,14 +750,15 @@
         }
     ];
 
-    let appData = JSON.parse(localStorage.getItem('legal_ops_hub_v3')) || {
+    let appData = JSON.parse(localStorage.getItem('legal_ops_hub_v4')) || {
         issues: [
             {
                 id: 1,
                 title: "高階經理人合約競業禁止條款之合理補償認定",
                 category: "research",
                 detail: "【爭點背景】業務副總離職擬前往競業任職。\n【實務分析】依勞基法第 9-1 條，每月補償金額若未達離職前月工資 50%，法院極高機率判定無效。\n【因應策略】後續修訂制式約定書時，應明定階梯式補償與返還違約金門檻。",
-                date: "2026/11/02"
+                date: "2026/11/02",
+                files: []
             }
         ],
         standardContracts: [
@@ -763,8 +789,8 @@
 
     function save() {
         try {
-            localStorage.setItem('legal_ops_hub_v3', JSON.stringify(appData));
-            localStorage.setItem('legal_vocab_custom_v3', JSON.stringify(userVocabList));
+            localStorage.setItem('legal_ops_hub_v4', JSON.stringify(appData));
+            localStorage.setItem('legal_vocab_custom_v4', JSON.stringify(userVocabList));
         } catch (e) {
             console.warn('localStorage 寫入提示:', e);
         }
@@ -774,7 +800,7 @@
         year: 'numeric', month: 'long', day: 'numeric', weekday: 'short'
     });
 
-    // --- 3. 爭點與實戰經驗邏輯 ---
+    // --- 3. 爭點與實戰經驗邏輯（支援編輯標題與附件上傳） ---
     function setCategoryFilter(cat, elem) {
         currentFilter = cat;
         document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active'));
@@ -794,7 +820,8 @@
             title,
             category,
             detail: detail || "（未提供詳細說明）",
-            date: new Date().toLocaleDateString('zh-TW')
+            date: new Date().toLocaleDateString('zh-TW'),
+            files: []
         };
 
         appData.issues.unshift(newIssue);
@@ -850,28 +877,73 @@
         };
 
         document.getElementById('modal-issue-badge').innerHTML = `<span class="cat-tag ${catMap[issue.category].cls}">${catMap[issue.category].name}</span>`;
-        document.getElementById('modal-issue-title').innerText = issue.title;
+        document.getElementById('modal-issue-edit-title').value = issue.title;
         document.getElementById('modal-issue-date').innerText = "建檔日期：" + issue.date;
         document.getElementById('modal-issue-detail').innerText = issue.detail;
         document.getElementById('modal-issue-append').value = '';
+        document.getElementById('modal-issue-file-input').value = '';
 
+        renderIssueFiles(issue);
         openModal('issue-modal');
     }
 
-    function saveAppendedIssueNote() {
+    function renderIssueFiles(issue) {
+        const container = document.getElementById('modal-issue-attachments');
+        if (!issue.files || issue.files.length === 0) {
+            container.innerHTML = `<span style="font-size: 12px; color: var(--text-muted);">尚無關聯附件</span>`;
+            return;
+        }
+
+        container.innerHTML = issue.files.map(f => `
+            <div style="margin-top: 4px;">
+                <button class="file-badge" onclick="downloadFileFromDB('${f.fileId}', '${f.name}')">📥 下載/檢視附件：${f.name}</button>
+            </div>
+        `).join('');
+    }
+
+    async function saveIssueModalChanges() {
+        const saveBtn = document.getElementById('btn-save-issue-modal');
         const issue = appData.issues.find(i => i.id === activeIssueId);
-        const appendText = document.getElementById('modal-issue-append').value.trim();
         if (!issue) return;
 
-        if (appendText) {
-            const timeStamp = new Date().toLocaleDateString('zh-TW');
-            issue.detail += `\n\n【追加補充 - ${timeStamp}】\n` + appendText;
+        const updatedTitle = document.getElementById('modal-issue-edit-title').value.trim();
+        if (!updatedTitle) return alert("爭點名稱不得為空！");
+
+        saveBtn.disabled = true;
+        saveBtn.innerText = "儲存中...";
+
+        try {
+            issue.title = updatedTitle;
+
+            const appendText = document.getElementById('modal-issue-append').value.trim();
+            if (appendText) {
+                const timeStamp = new Date().toLocaleDateString('zh-TW');
+                issue.detail += `\n\n【追加補充 - ${timeStamp}】\n` + appendText;
+            }
+
+            const fileInput = document.getElementById('modal-issue-file-input');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const fileId = 'issue_blob_' + Date.now();
+                await storeBlob(fileId, file);
+
+                if (!issue.files) issue.files = [];
+                issue.files.push({ fileId, name: file.name });
+            }
+
             save();
+            renderIssues();
             document.getElementById('modal-issue-detail').innerText = issue.detail;
             document.getElementById('modal-issue-append').value = '';
-            alert("已成功追加補充紀錄！");
-        } else {
-            alert("請先輸入欲追加的補充筆記內容。");
+            document.getElementById('modal-issue-file-input').value = '';
+            renderIssueFiles(issue);
+            alert("爭點名稱、筆記與附件已成功儲存！");
+        } catch (err) {
+            console.error(err);
+            alert("儲存爭點發生錯誤：" + err.message);
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerText = "儲存名稱、筆記與新附件";
         }
     }
 
@@ -1028,7 +1100,7 @@
         openModal('vocab-history-modal');
     }
 
-    // --- 6. 專案管理邏輯 ---
+    // --- 6. 專案管理邏輯（鵝黃色進度條與名稱編輯） ---
     function renderProjects() {
         const container = document.getElementById('project-list-container');
         if (appData.projects.length === 0) {
@@ -1047,7 +1119,7 @@
                 </div>
                 <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; display:flex; justify-content:space-between;">
                     <span>🎯 目標日：${proj.dueDate || "未設定"}</span>
-                    <span>檢視進度與附件 ➔</span>
+                    <span>檢視進度與編輯 ➔</span>
                 </div>
             </div>
         `).join('');
@@ -1082,7 +1154,7 @@
         const proj = appData.projects.find(p => p.id === id);
         if (!proj) return;
 
-        document.getElementById('modal-proj-name').innerText = "🎯 " + proj.name;
+        document.getElementById('modal-proj-edit-name').value = proj.name;
         document.getElementById('modal-proj-progress').value = proj.progress;
         document.getElementById('modal-proj-percent-text').innerText = proj.progress + "%";
         document.getElementById('modal-proj-notes').value = proj.notes || "";
@@ -1115,10 +1187,14 @@
         const proj = appData.projects.find(p => p.id === activeProjectId);
         if (!proj) return;
 
+        const updatedName = document.getElementById('modal-proj-edit-name').value.trim();
+        if (!updatedName) return alert("專案名稱不得為空！");
+
         saveBtn.disabled = true;
         saveBtn.innerText = "儲存中...";
 
         try {
+            proj.name = updatedName;
             proj.progress = parseInt(document.getElementById('modal-proj-progress').value) || 0;
             proj.notes = document.getElementById('modal-proj-notes').value;
 
@@ -1135,13 +1211,14 @@
             save();
             renderProjects();
             renderProjectFiles(proj);
-            alert("專案進度與附件已儲存！");
+            document.getElementById('modal-proj-file-input').value = '';
+            alert("專案名稱、進度與附件已儲存！");
         } catch (err) {
             console.error(err);
             alert("專案儲存失敗：" + err.message);
         } finally {
             saveBtn.disabled = false;
-            saveBtn.innerText = "儲存進度與檔案";
+            saveBtn.innerText = "儲存名稱、進度與檔案";
         }
     }
 
