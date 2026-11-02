@@ -3,25 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Legal Desk | 個人法務與實戰知識儀表板</title>
+    <title>Legal Ops & Knowledge Hub | 法務實戰與知識儀表板</title>
     <style>
         :root {
-            --bg-base: #f4f6f9;
+            --bg-base: #f8fafc;
             --surface: #ffffff;
+            --navy-dark: #0f172a;
             --navy-primary: #1e293b;
-            --navy-accent: #0f172a;
+            --navy-light: #334155;
             --brand-blue: #2563eb;
-            --brand-light: #eff6ff;
-            --text-main: #334155;
+            --brand-blue-hover: #1d4ed8;
+            --text-main: #1e293b;
             --text-muted: #64748b;
             --border: #e2e8f0;
-            --tag-yellow: #fef08a;
-            --tag-yellow-text: #854d0e;
-            --tag-purple: #f3e8ff;
-            --tag-purple-text: #6b21a8;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07);
-            --radius: 14px;
+            --border-hover: #cbd5e1;
+            
+            /* 4 大實戰分類標籤色彩 */
+            --cat-litigation: #fee2e2;
+            --cat-litigation-text: #991b1b;
+            --cat-nonlitigation: #e0e7ff;
+            --cat-nonlitigation-text: #3730a3;
+            --cat-research: #fef3c7;
+            --cat-research-text: #92400e;
+            --cat-news: #dcfce7;
+            --cat-news-text: #166534;
+
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,13 +40,13 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "PingFang TC", sans-serif;
             background-color: var(--bg-base);
             color: var(--text-main);
+            padding: 24px 20px 80px 20px;
             line-height: 1.5;
-            padding: 24px;
         }
 
         /* 頂部 Header */
         header {
-            max-width: 1300px;
+            max-width: 1400px;
             margin: 0 auto 24px auto;
             display: flex;
             justify-content: space-between;
@@ -43,10 +54,13 @@
         }
 
         .header-title h1 {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 800;
-            color: var(--navy-primary);
+            color: var(--navy-dark);
             letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .header-title p {
@@ -55,37 +69,42 @@
             margin-top: 2px;
         }
 
-        .header-status {
-            font-size: 13px;
-            background: var(--surface);
-            padding: 8px 16px;
-            border-radius: 20px;
+        .header-badge {
+            background: #ffffff;
             border: 1px solid var(--border);
-            color: var(--text-muted);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
             font-weight: 600;
+            color: var(--text-muted);
         }
 
-        /* Dashboard 格狀佈局 */
-        .dashboard-grid {
-            max-width: 1300px;
+        /* 主網格架構：左大欄、右副欄 */
+        .dashboard-container {
+            max-width: 1400px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 2fr 1.3fr;
+            grid-template-columns: 1.8fr 1.2fr;
             gap: 24px;
         }
 
-        @media (max-width: 900px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
+        @media (max-width: 1024px) {
+            .dashboard-container { grid-template-columns: 1fr; }
         }
 
         /* 卡片共用樣式 */
         .card {
             background: var(--surface);
-            border-radius: var(--radius);
-            padding: 20px;
+            border-radius: var(--radius-lg);
             border: 1px solid var(--border);
             box-shadow: var(--shadow-sm);
+            padding: 20px;
             margin-bottom: 24px;
+            transition: box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
         }
 
         .card-header {
@@ -104,289 +123,605 @@
             gap: 8px;
         }
 
-        /* 表單元件 */
+        /* 表單與輸入控制 */
         input, select, textarea {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             font-size: 13px;
-            color: var(--text-main);
             outline: none;
             background: #fafbfc;
+            color: var(--text-main);
             margin-bottom: 10px;
             font-family: inherit;
         }
 
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             border-color: var(--brand-blue);
-            background: #fff;
+            background: #ffffff;
         }
 
         .btn {
             background: var(--navy-primary);
-            color: #fff;
+            color: #ffffff;
             border: none;
             padding: 9px 16px;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .btn:hover { background: var(--navy-accent); }
+        .btn:hover { background: var(--navy-dark); }
 
-        .btn-secondary {
-            background: var(--brand-light);
-            color: var(--brand-blue);
-            border: 1px solid #bfdbfe;
+        .btn-sub {
+            background: #f1f5f9;
+            color: var(--navy-light);
+            border: 1px solid var(--border);
         }
 
-        .btn-secondary:hover { background: #dbeafe; }
+        .btn-sub:hover { background: #e2e8f0; }
 
-        /* 工作日誌清單 */
-        .log-item {
-            border-left: 3px solid var(--brand-blue);
-            padding: 12px 14px;
+        .btn-brand {
+            background: var(--brand-blue);
+            color: #fff;
+        }
+        .btn-brand:hover { background: var(--brand-blue-hover); }
+
+        /* 分類標籤樣式 */
+        .cat-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .tag-litigation { background: var(--cat-litigation); color: var(--cat-litigation-text); }
+        .tag-nonlitigation { background: var(--cat-nonlitigation); color: var(--cat-nonlitigation-text); }
+        .tag-research { background: var(--cat-research); color: var(--cat-research-text); }
+        .tag-news { background: var(--cat-news); color: var(--cat-news-text); }
+
+        /* 1. 精簡 Issue 清單列表（點擊彈出詳情） */
+        .issue-filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .filter-chip {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
             background: #f8fafc;
-            border-radius: 0 8px 8px 0;
-            margin-bottom: 12px;
-            position: relative;
+            color: var(--text-muted);
+            white-space: nowrap;
         }
 
-        .log-header {
+        .filter-chip.active {
+            background: var(--navy-primary);
+            color: #ffffff;
+            border-color: var(--navy-primary);
+        }
+
+        .issue-item {
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            margin-bottom: 10px;
+            background: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .issue-item:hover {
+            border-color: var(--brand-blue);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .issue-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .issue-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--navy-primary);
+        }
+
+        .issue-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            margin-left: 12px;
+        }
+
+        /* 2. 合約管理區塊 */
+        .contract-section {
+            margin-bottom: 20px;
+        }
+
+        .contract-section h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .contract-pill-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .contract-pill {
+            padding: 8px 14px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .contract-pill:hover {
+            border-color: var(--brand-blue);
+            background: #eff6ff;
+            color: var(--brand-blue);
+        }
+
+        .product-card-item {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            background: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .product-card-item:hover {
+            border-color: var(--brand-blue);
+            background: #f0fdfa;
+        }
+
+        /* 3. 每日法學英文卡片 */
+        .vocab-box {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            border-radius: var(--radius-md);
+            padding: 18px;
+            margin-bottom: 12px;
+        }
+
+        .vocab-word { font-size: 19px; font-weight: 800; color: #93c5fd; }
+        .vocab-pronounce { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+        .vocab-meaning { font-size: 13px; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+        .vocab-clause {
+            font-size: 12px;
+            background: rgba(255,255,255,0.08);
+            padding: 8px 10px;
+            border-radius: 6px;
+            border-left: 3px solid #38bdf8;
+            color: #e2e8f0;
+            font-style: italic;
+        }
+
+        /* 4. 專案清單與進度條 */
+        .project-row {
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            margin-bottom: 10px;
+            background: #ffffff;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .project-row:hover { border-color: var(--brand-blue); }
+
+        .project-row-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 6px;
         }
 
-        .log-tag {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 6px;
+        .project-name { font-size: 13px; font-weight: 700; color: var(--navy-primary); }
+        .project-status-tag { font-size: 11px; font-weight: 700; color: var(--brand-blue); }
+
+        .progress-bar-bg {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
         }
 
-        .tag-discussion { background: var(--tag-yellow); color: var(--tag-yellow-text); }
-        .tag-project { background: var(--tag-purple); color: var(--tag-purple-text); }
-        .tag-general { background: #e2e8f0; color: #475569; }
-
-        .log-date { font-size: 12px; color: var(--text-muted); }
-        .log-content { font-size: 13px; color: var(--text-main); white-space: pre-wrap; }
-
-        .log-del {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .log-del:hover { color: #ef4444; }
-
-        /* 法學英文卡片 */
-        .vocab-box {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--brand-blue);
+            border-radius: 4px;
         }
 
-        .vocab-word { font-size: 20px; font-weight: 800; color: #93c5fd; }
-        .vocab-pronounce { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
-        .vocab-meaning { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
-        .vocab-clause {
-            font-size: 12px;
-            background: rgba(255,255,255,0.08);
-            padding: 10px;
-            border-radius: 6px;
-            border-left: 2px solid #38bdf8;
-            color: #e2e8f0;
-            font-style: italic;
-        }
-
-        /* 專案與重點排程清單 */
-        .project-item {
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
+        /* 彈窗（Modal）通用樣式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.5);
+            display: none;
+            justify-content: center;
             align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            backdrop-filter: blur(2px);
         }
-        .project-item h4 { font-size: 13px; font-weight: 700; }
-        .project-item p { font-size: 12px; color: var(--text-muted); }
 
-        .delete-btn-sm {
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            cursor: pointer;
-            font-size: 14px;
+        .modal-window {
+            background: #ffffff;
+            width: 100%;
+            max-width: 600px;
+            max-height: 85vh;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            overflow-y: auto;
+            position: relative;
         }
-        .delete-btn-sm:hover { color: #ef4444; }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+
+        .modal-close-btn:hover { background: #e2e8f0; color: #000; }
+        .detail-label { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
+        .detail-block { background: #f8fafc; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; white-space: pre-wrap; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="header-title">
-            <h1>⚖️ Legal Ops & Insights</h1>
-            <p>聚焦高價值案件思考・法學實務探討・每日英文進修</p>
+            <h1>⚖️ Legal Ops & Insights Hub</h1>
+            <p>實戰爭點研究・產品與制式合約庫・專案進度追蹤・法學英文歷程</p>
         </div>
-        <div class="header-status" id="current-date-badge"></div>
+        <div class="header-badge" id="current-date-badge"></div>
     </header>
 
-    <div class="dashboard-grid">
+    <div class="dashboard-container">
         
-        <!-- 左側：重點工作紀錄與 Issue 探討庫 -->
+        <!-- ================= 左側大欄：重點 Issue 與 實踐經驗庫 ================= -->
         <div class="col-main">
             
-            <!-- 重點紀錄輸入區 -->
+            <!-- 新增重點爭點與實戰經驗 -->
             <div class="card">
                 <div class="card-header">
-                    <h2>📝 記錄今日重點 / 值得深究的 Issue</h2>
+                    <h2>💡 快速記錄新爭點 / 實戰心得</h2>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <select id="log-category" style="width: 140px;">
-                        <option value="discussion">💡 值得討論的 Issue</option>
-                        <option value="project">🚀 重點專案進展</option>
-                        <option value="general">📌 關鍵工作摘要</option>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <select id="issue-category" style="width: 160px; margin-bottom: 0;">
+                        <option value="litigation">⚖️ 訴訟</option>
+                        <option value="nonlitigation">📑 非訟</option>
+                        <option value="research">🔍 法律議題研究</option>
+                        <option value="news">🌐 關注新知</option>
                     </select>
-                    <input type="text" id="log-title" placeholder="輸入主題（例：競業禁止補償金實務見解、跨國採購管轄權爭議）">
+                    <input type="text" id="issue-title" placeholder="輸入核心爭點摘要（例：遠端工作員工職災認定要件）" style="margin-bottom: 0;">
                 </div>
-                <textarea id="log-detail" rows="3" placeholder="簡短記下關鍵細節、主管/律師的建議，或是日後回顧時值得參考的論點..."></textarea>
-                <button class="btn" onclick="addDailyLog()">儲存紀錄</button>
+                <textarea id="issue-detail" rows="3" placeholder="請簡述事實背景、法院或主管機關見解、以及實務應對建議..."></textarea>
+                <div style="display: flex; justify-content: flex-end;">
+                    <button class="btn btn-brand" onclick="addIssue()">儲存經驗卡片</button>
+                </div>
             </div>
 
-            <!-- 歷史重點資料庫 -->
+            <!-- 實戰經驗庫（精簡清單呈現，支援點選詳情與篩選） -->
             <div class="card">
                 <div class="card-header">
-                    <h2>📚 實戰經驗與 Issue 紀錄</h2>
-                    <input type="text" id="search-input" placeholder="🔍 搜尋過往紀錄關鍵字..." style="width: 200px; margin-bottom: 0;" oninput="renderLogs()">
+                    <h2>📚 實戰經驗與爭點庫 (點擊檢視詳情)</h2>
+                    <input type="text" id="issue-search" placeholder="🔍 搜尋爭點關鍵字..." style="width: 180px; margin-bottom: 0;" oninput="renderIssues()">
                 </div>
-                <div id="logs-container"></div>
+
+                <!-- 分類篩選 Bar -->
+                <div class="issue-filter-bar">
+                    <div class="filter-chip active" onclick="setCategoryFilter('all', this)">全部全部</div>
+                    <div class="filter-chip" onclick="setCategoryFilter('litigation', this)">⚖️ 訴訟</div>
+                    <div class="filter-chip" onclick="setCategoryFilter('nonlitigation', this)">📑 非訟</div>
+                    <div class="filter-chip" onclick="setCategoryFilter('research', this)">🔍 法律議題研究</div>
+                    <div class="filter-chip" onclick="setCategoryFilter('news', this)">🌐 關注新知</div>
+                </div>
+
+                <!-- 精簡清單列表容器 -->
+                <div id="issue-list-container"></div>
             </div>
 
         </div>
 
-        <!-- 右側：每日法學英文與重點專案 Milestone -->
+        <!-- ================= 右側副欄：合約庫、法學英文、專案進度 ================= -->
         <div class="col-sub">
             
-            <!-- 每日法學英文 Pocket -->
+            <!-- 2. 合約庫 (通用制式合約 + 產品重要合約) -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>📁 合約知識庫</h2>
+                    <button class="btn btn-sub" style="font-size: 11px; padding: 4px 8px;" onclick="openAddProductModal()">+ 新增產品</button>
+                </div>
+
+                <!-- 通用制式合約 -->
+                <div class="contract-section">
+                    <h3>📌 通用制式合約範本</h3>
+                    <div class="contract-pill-grid">
+                        <div class="contract-pill" onclick="viewStandardContract('保密協議 (NDA)')">🔒 保密合約 (NDA)</div>
+                        <div class="contract-pill" onclick="viewStandardContract('房屋/場地租賃契約')">🏢 租賃契約</div>
+                        <div class="contract-pill" onclick="viewStandardContract('勞動契約與競業限制')">👔 聘僱/勞動合約</div>
+                        <div class="contract-pill" onclick="viewStandardContract('採購/委任勞務合約')">📦 採購與勞務合約</div>
+                    </div>
+                </div>
+
+                <!-- 依產品區分之重要合約 -->
+                <div class="contract-section" style="margin-bottom: 0;">
+                    <h3>🚀 產品重要合約 (點擊查看三合一條款)</h3>
+                    <div id="product-list-container"></div>
+                </div>
+            </div>
+
+            <!-- 3. 每日法學英文與學習歷程 -->
             <div class="card">
                 <div class="card-header">
                     <h2>📖 每日法學英文 (Daily Legal English)</h2>
-                    <button class="btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="nextVocab()">換下一個 ↻</button>
+                    <button class="btn btn-sub" style="font-size: 11px; padding: 4px 8px;" onclick="openVocabHistoryModal()">歷程庫 📚</button>
                 </div>
-                <div class="vocab-box" id="vocab-display">
-                    <!-- 動態載入單字 -->
-                </div>
-                <div style="font-size: 12px; color: var(--text-muted); text-align: center;">
-                    每天花 1 分鐘熟悉一個合約核心詞彙與實戰條款。
+                <div class="vocab-box" id="daily-vocab-box"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 11px; color: var(--text-muted);">每日精進合約條款語感</span>
+                    <button class="btn btn-sub" style="font-size: 11px; padding: 3px 8px;" onclick="nextVocab()">換下一個 ↻</button>
                 </div>
             </div>
 
-            <!-- 當前核心專案追蹤 (Key Milestones) -->
+            <!-- 4. 當前專案進度與細項 -->
             <div class="card">
                 <div class="card-header">
-                    <h2>🎯 當前核心專案 / 重大事件</h2>
+                    <h2>🎯 核心專案進度追蹤</h2>
+                    <button class="btn btn-sub" style="font-size: 11px; padding: 4px 8px;" onclick="openNewProjectModal()">+ 新專案</button>
                 </div>
-                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                    <input type="text" id="proj-title" placeholder="專案名稱或庭期" style="margin-bottom:0;">
-                    <input type="date" id="proj-date" style="width: 140px; margin-bottom:0;">
-                    <button class="btn" onclick="addProject()">新增</button>
-                </div>
-                <div id="projects-container"></div>
-            </div>
-
-            <!-- 法務快捷查詢傳送門 -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>🔗 常用實務檢索傳送門</h2>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <a href="https://law.moj.gov.tw/" target="_blank" style="text-decoration: none;">
-                        <button class="btn-secondary" style="width:100%; text-align:left; font-size: 12px;">📜 全國法規資料庫</button>
-                    </a>
-                    <a href="https://judgment.judicial.gov.tw/FJUD/default.aspx" target="_blank" style="text-decoration: none;">
-                        <button class="btn-secondary" style="width:100%; text-align:left; font-size: 12px;">⚖️ 裁判書檢索系統</button>
-                    </a>
-                    <a href="https://www.lawplus.com.tw/" target="_blank" style="text-decoration: none;">
-                        <button class="btn-secondary" style="width:100%; text-align:left; font-size: 12px;">🔍 法源法律網</button>
-                    </a>
-                    <a href="https://www.translegal.com/" target="_blank" style="text-decoration: none;">
-                        <button class="btn-secondary" style="width:100%; text-align:left; font-size: 12px;">🌐 TransLegal 詞庫</button>
-                    </a>
-                </div>
+                <div id="project-list-container"></div>
             </div>
 
         </div>
 
     </div>
 
+    <!-- ================= 彈窗區塊 (Modals) ================= -->
+
+    <!-- Modal 1: 爭點詳細資料彈窗 -->
+    <div class="modal-overlay" id="issue-modal">
+        <div class="modal-window">
+            <button class="modal-close-btn" onclick="closeModal('issue-modal')">✕</button>
+            <div id="modal-issue-badge" style="margin-bottom: 8px;"></div>
+            <h2 id="modal-issue-title" style="font-size: 18px; margin-bottom: 6px; color: var(--navy-dark);"></h2>
+            <div id="modal-issue-date" style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;"></div>
+            
+            <div class="detail-label">📌 爭點核心分析與建議細節</div>
+            <div class="detail-block" id="modal-issue-detail"></div>
+
+            <div style="display: flex; justify-content: flex-end;">
+                <button class="btn" style="background: #ef4444;" onclick="deleteCurrentIssue()">刪除此爭點</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: 產品三合一合約彈窗 (服務條款、隱私權政策、重點合約) -->
+    <div class="modal-overlay" id="product-modal">
+        <div class="modal-window">
+            <button class="modal-close-btn" onclick="closeModal('product-modal')">✕</button>
+            <h2 id="modal-product-title" style="font-size: 18px; margin-bottom: 14px; color: var(--navy-dark);"></h2>
+            
+            <div class="detail-label">📜 服務條款 (Terms of Service)</div>
+            <textarea id="modal-product-tos" rows="3" placeholder="備註服務條款重點、特殊免責限制或版本連結..."></textarea>
+
+            <div class="detail-label">🔒 隱私權政策 (Privacy Policy)</div>
+            <textarea id="modal-product-privacy" rows="3" placeholder="備註個資蒐集目的、第三方 SDK 共享政策或版本連結..."></textarea>
+
+            <div class="detail-label">📑 重點合約與特殊架構 (Key Agreements)</div>
+            <textarea id="modal-product-keycontract" rows="3" placeholder="備註該產品簽訂的主要合作夥伴框架、B2B SLA 或分潤合約..."></textarea>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                <button class="btn" style="background: #ef4444;" onclick="deleteCurrentProduct()">刪除產品</button>
+                <button class="btn btn-brand" onclick="saveProductDetails()">儲存產品條款細項</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: 新增產品彈窗 -->
+    <div class="modal-overlay" id="add-product-modal">
+        <div class="modal-window" style="max-width: 400px;">
+            <button class="modal-close-btn" onclick="closeModal('add-product-modal')">✕</button>
+            <h3 style="margin-bottom: 12px;">新增產品分類</h3>
+            <input type="text" id="new-product-name" placeholder="輸入產品或服務名稱 (例：SaaS 平台、行動 App)">
+            <button class="btn btn-brand" style="width: 100%; justify-content: center;" onclick="confirmAddProduct()">確認建立</button>
+        </div>
+    </div>
+
+    <!-- Modal 4: 法學英文學習歷程庫彈窗 -->
+    <div class="modal-overlay" id="vocab-history-modal">
+        <div class="modal-window">
+            <button class="modal-close-btn" onclick="closeModal('vocab-history-modal')">✕</button>
+            <h3 style="margin-bottom: 14px;">📚 已累積法學英文詞彙庫</h3>
+            <div id="vocab-history-list" style="max-height: 60vh; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <!-- Modal 5: 專案細項與進度彈窗 -->
+    <div class="modal-overlay" id="project-detail-modal">
+        <div class="modal-window">
+            <button class="modal-close-btn" onclick="closeModal('project-detail-modal')">✕</button>
+            <h2 id="modal-proj-name" style="margin-bottom: 12px; color: var(--navy-dark);"></h2>
+            
+            <div class="detail-label">📊 當前進度百分比 (%)</div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                <input type="range" id="modal-proj-progress" min="0" max="100" style="flex: 1; margin-bottom: 0;" oninput="updateProgressDisplay(this.value)">
+                <span id="modal-proj-percent-text" style="font-weight: 700; width: 45px;"></span>
+            </div>
+
+            <div class="detail-label">📋 專案細項、待辦與重要 Milestone</div>
+            <textarea id="modal-proj-notes" rows="5" placeholder="記錄該專案的細部階段進度（例：2026/11/15 完成第一版法遵檢查清單、對造訴狀答辯要點...）"></textarea>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                <button class="btn" style="background: #ef4444;" onclick="deleteCurrentProject()">刪除專案</button>
+                <button class="btn btn-brand" onclick="saveProjectDetails()">儲存進度更新</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 6: 新增專案彈窗 -->
+    <div class="modal-overlay" id="add-project-modal">
+        <div class="modal-window" style="max-width: 420px;">
+            <button class="modal-close-btn" onclick="closeModal('add-project-modal')">✕</button>
+            <h3 style="margin-bottom: 12px;">新增重點專案</h3>
+            <input type="text" id="new-proj-title" placeholder="專案名稱（例：全公司資安法遵專案）">
+            <input type="date" id="new-proj-duedate" placeholder="目標完成日">
+            <button class="btn btn-brand" style="width: 100%; justify-content: center;" onclick="confirmAddProject()">確認新增</button>
+        </div>
+    </div>
+
 <script>
-    // 預載合約法學英文詞庫（精選高頻實務詞彙）
-    const legalVocabList = [
+    // 預載法律英文詞庫
+    const legalVocabData = [
         {
             word: "Indemnification",
             pronounce: "[ɪnˌdɛmnəfɪˈkeɪʃən] (n.) 補償、損害免責",
             meaning: "一方承諾若因特定事由使他方遭受第三方索賠或損害時，給予金錢補償與法律防護。",
-            clause: "Seller shall indemnify, defend, and hold harmless Buyer from and against any third-party claims arising out of IP infringement."
+            clause: "Seller shall indemnify, defend, and hold harmless Buyer from and against any third-party claims."
         },
         {
             word: "Liquidated Damages",
             pronounce: "[ˈlɪkwɪdeɪtɪd ˈdæmɪdʒɪz] (n.) 預定違約金",
-            meaning: "締約雙方預先約定當違約發生時應支付的損害賠償總額，避免日後舉證損害之爭議。",
-            clause: "The parties agree that liquidated damages shall reflect a reasonable pre-estimate of likely loss, not a penalty."
+            meaning: "締約雙方預先約定當違約發生時應支付的賠償額，免除日後訴訟舉證之耗損。",
+            clause: "The parties agree that liquidated damages shall reflect a reasonable pre-estimate of loss."
         },
         {
             word: "Severability",
-            pronounce: "[ˌsɛvərəˈbɪlɪti] (n.) 可分割條款",
-            meaning: "若合約某條款被法院認定無效，不影響其他條款的有效性與拘束力。",
-            clause: "If any provision of this Agreement is held to be invalid or unenforceable, the remaining provisions shall continue in full force."
+            pronounce: "[ˌsɛvərəˈbɪlɪti] (n.) 可分割性條款",
+            meaning: "若合約某條款被認定無效，其餘條款仍繼續維持完整效力。",
+            clause: "If any provision is held unenforceable, the remaining provisions shall continue in full force."
         },
         {
             word: "Force Majeure",
             pronounce: "[ˌfɔːrs məˈʒɜːr] (n.) 不可抗力",
-            meaning: "無法預見、無法避免且無法克服的客觀情況（如天災、戰爭、政府禁令）導致免責。",
-            clause: "Neither party shall be liable for delay or failure to perform its obligations caused by events of Force Majeure beyond reasonable control."
+            meaning: "無法預見、無法避免且無法控制之客觀障礙（如天災、禁令），可構成履行免責。",
+            clause: "Neither party shall be liable for delay caused by events of Force Majeure beyond control."
         },
         {
             word: "Representations and Warranties",
             pronounce: "(n.) 聲明與保證 (R&W)",
-            meaning: "一方對事實現狀的真實陳述（Rep），以及對未來事實或履行能力之承諾擔保（Warranty）。",
-            clause: "Supplier represents and warrants that the Deliverables do not infringe upon any third-party proprietary rights."
+            meaning: "一方對客觀現狀之確認（Rep），以及對權利無瑕疵之擔保擔承（Warranty）。",
+            clause: "Supplier represents and warrants that Deliverables do not infringe upon any IP rights."
+        },
+        {
+            word: "Governing Law & Jurisdiction",
+            pronounce: "(n.) 準據法與管轄法院",
+            meaning: "合約爭議時適用何國/地區法律，以及由何處管轄法院管轄。",
+            clause: "This Agreement shall be governed by and construed in accordance with the laws of Taiwan."
         }
     ];
 
-    let currentVocabIndex = 0;
-
-    // 本地持久化資料模型
-    let legalData = JSON.parse(localStorage.getItem('my_legal_dashboard')) || {
-        logs: [
+    // 本地持久化資料主體
+    let appData = JSON.parse(localStorage.getItem('legal_ops_hub_v2')) || {
+        issues: [
             {
                 id: 1,
-                date: "2026/11/02",
-                category: "discussion",
-                title: "高階經理人合約競業禁止條款之合理補償爭議",
-                detail: "實務上常有業務主管離職案件。今日審約時確認：補償金額若未達離職前月平均薪資50%，可能被法院判定無效，後續擬範本時應加入階梯式補償標準。"
+                title: "高階經理人合約競業禁止條款之合理補償認定",
+                category: "research",
+                detail: "【爭點背景】業務副總離職擬前往競業任職。\n【實務分析】依勞基法第 9-1 條，每月補償金額若未達離職前月工資 50%，法院極高機率判定無效。\n【因應策略】後續修訂制式高階經理人約定書時，應明定階梯式補償與返還違約金門檻。",
+                date: "2026/11/02"
+            },
+            {
+                id: 2,
+                title: "供應商侵權求償之爭訟程序保全措施",
+                category: "litigation",
+                detail: "【爭點背景】關鍵零件供應商涉及智慧財產權侵害訴訟。\n【保全對策】立即行使合約暫停給付抗辯權，並針對已付貨款聲請假扣押，鎖定對方帳戶以防脫產。",
+                date: "2026/11/01"
+            }
+        ],
+        products: [
+            {
+                id: 101,
+                name: "企業雲端 SaaS 平台",
+                tos: "SLA 99.9% 服務承諾，明訂重大過失外賠償上限以過去 12 個月實收服務費為限。",
+                privacy: "符合台灣個人資料保護法及跨境傳輸規範，已完成第三方隱私安全審計認證。",
+                keyContract: "大客戶 B2B 主服務合約 (Enterprise MSA) 與經銷夥伴合作備忘錄 (MOU)。"
+            },
+            {
+                id: 102,
+                name: "行動端生活 App",
+                tos: "虛擬點數購買不適用無條件消保法退貨規定（已設定合理例外提示）。",
+                privacy: "涉及手機相簿與定位授權之強制彈窗同意宣告條款。",
+                keyContract: "與支付閘道（Payment Gateway）金流合約及 Apple / Google 開發者協議條款。"
             }
         ],
         projects: [
-            { id: 1, title: "2026 年度制式合約大改版", date: "2026-11-30" },
-            { id: 2, title: "外部採購主合約 (Master Agreement) 協商", date: "2026-12-15" }
-        ]
+            {
+                id: 201,
+                name: "全公司制式合約與法遵指引年度翻修",
+                dueDate: "2026-11-30",
+                progress: 65,
+                notes: "• [完成] NDA 與採購合約翻新\n• [進行中] 業務經銷合約草案覆核\n• [待辦] 呈報法務長核准與內部公告"
+            },
+            {
+                id: 202,
+                name: "新版個人資料保護法應變審查專案",
+                dueDate: "2026-12-15",
+                progress: 30,
+                notes: "• [進行中] 各部門資料盤點作業\n• [待辦] 外部資安律師諮詢意見會議"
+            }
+        ],
+        vocabIndex: 0
     };
 
-    function saveState() {
-        localStorage.setItem('my_legal_dashboard', JSON.stringify(legalData));
+    let currentFilter = "all";
+    let activeIssueId = null;
+    let activeProductId = null;
+    let activeProjectId = null;
+
+    function save() {
+        localStorage.setItem('legal_ops_hub_v2', JSON.stringify(appData));
     }
 
     // 初始化日期標籤
@@ -394,10 +729,176 @@
         year: 'numeric', month: 'long', day: 'numeric', weekday: 'short'
     });
 
-    // 渲染法學英文單字
-    function renderVocab() {
-        const item = legalVocabList[currentVocabIndex];
-        document.getElementById('vocab-display').innerHTML = `
+    // 1. 爭點與實戰經驗邏輯
+    function setCategoryFilter(cat, elem) {
+        currentFilter = cat;
+        document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active'));
+        elem.classList.add('active');
+        renderIssues();
+    }
+
+    function addIssue() {
+        const title = document.getElementById('issue-title').value.trim();
+        const detail = document.getElementById('issue-detail').value.trim();
+        const category = document.getElementById('issue-category').value;
+
+        if (!title) return alert("請輸入核心爭點摘要！");
+
+        const newIssue = {
+            id: Date.now(),
+            title,
+            category,
+            detail: detail || "（未提供詳細說明）",
+            date: new Date().toLocaleDateString('zh-TW')
+        };
+
+        appData.issues.unshift(newIssue);
+        save();
+        document.getElementById('issue-title').value = '';
+        document.getElementById('issue-detail').value = '';
+        renderIssues();
+    }
+
+    function renderIssues() {
+        const query = document.getElementById('issue-search').value.toLowerCase();
+        const container = document.getElementById('issue-list-container');
+
+        const filtered = appData.issues.filter(item => {
+            const matchesCat = (currentFilter === "all") || (item.category === currentFilter);
+            const matchesQuery = item.title.toLowerCase().includes(query) || item.detail.toLowerCase().includes(query);
+            return matchesCat && matchesQuery;
+        });
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">無符合條件的實戰爭點紀錄</div>`;
+            return;
+        }
+
+        const catMap = {
+            litigation: { name: "訴訟", cls: "tag-litigation" },
+            nonlitigation: { name: "非訟", cls: "tag-nonlitigation" },
+            research: { name: "法律議題研究", cls: "tag-research" },
+            news: { name: "關注新知", cls: "tag-news" }
+        };
+
+        container.innerHTML = filtered.map(issue => `
+            <div class="issue-item" onclick="openIssueModal(${issue.id})">
+                <div class="issue-main">
+                    <span class="cat-tag ${catMap[issue.category].cls}">${catMap[issue.category].name}</span>
+                    <span class="issue-title">${issue.title}</span>
+                </div>
+                <div class="issue-meta">📅 ${issue.date} ➔</div>
+            </div>
+        `).join('');
+    }
+
+    function openIssueModal(id) {
+        activeIssueId = id;
+        const issue = appData.issues.find(i => i.id === id);
+        if (!issue) return;
+
+        const catMap = {
+            litigation: { name: "訴訟", cls: "tag-litigation" },
+            nonlitigation: { name: "非訟", cls: "tag-nonlitigation" },
+            research: { name: "法律議題研究", cls: "tag-research" },
+            news: { name: "關注新知", cls: "tag-news" }
+        };
+
+        document.getElementById('modal-issue-badge').innerHTML = `<span class="cat-tag ${catMap[issue.category].cls}">${catMap[issue.category].name}</span>`;
+        document.getElementById('modal-issue-title').innerText = issue.title;
+        document.getElementById('modal-issue-date').innerText = "建立日期：" + issue.date;
+        document.getElementById('modal-issue-detail').innerText = issue.detail;
+
+        openModal('issue-modal');
+    }
+
+    function deleteCurrentIssue() {
+        if (!confirm("確定要刪除這筆爭點與經驗紀錄嗎？")) return;
+        appData.issues = appData.issues.filter(i => i.id !== activeIssueId);
+        save();
+        closeModal('issue-modal');
+        renderIssues();
+    }
+
+    // 2. 合約知識庫邏輯
+    function viewStandardContract(type) {
+        alert(`【${type}】\n此處為通用標準約範本索引。您可於公司內部範本庫對照使用，或在爭點專區記錄此範本之審約常遇爭議！`);
+    }
+
+    function renderProducts() {
+        const container = document.getElementById('product-list-container');
+        if (appData.products.length === 0) {
+            container.innerHTML = `<div style="font-size: 12px; color: var(--text-muted); padding: 8px;">尚未建立任何產品合約分類</div>`;
+            return;
+        }
+
+        container.innerHTML = appData.products.map(prod => `
+            <div class="product-card-item" onclick="openProductModal(${prod.id})">
+                <span style="font-size: 13px; font-weight: 700; color: var(--navy-primary);">📦 ${prod.name}</span>
+                <span style="font-size: 12px; color: var(--brand-blue); font-weight: 600;">條款細項 ➔</span>
+            </div>
+        `).join('');
+    }
+
+    function openAddProductModal() {
+        document.getElementById('new-product-name').value = '';
+        openModal('add-product-modal');
+    }
+
+    function confirmAddProduct() {
+        const name = document.getElementById('new-product-name').value.trim();
+        if (!name) return alert("請輸入產品名稱");
+
+        appData.products.push({
+            id: Date.now(),
+            name,
+            tos: "",
+            privacy: "",
+            keyContract: ""
+        });
+        save();
+        closeModal('add-product-modal');
+        renderProducts();
+    }
+
+    function openProductModal(id) {
+        activeProductId = id;
+        const prod = appData.products.find(p => p.id === id);
+        if (!prod) return;
+
+        document.getElementById('modal-product-title').innerText = "📦 " + prod.name + " 合約架構";
+        document.getElementById('modal-product-tos').value = prod.tos || "";
+        document.getElementById('modal-product-privacy').value = prod.privacy || "";
+        document.getElementById('modal-product-keycontract').value = prod.keyContract || "";
+
+        openModal('product-modal');
+    }
+
+    function saveProductDetails() {
+        const prod = appData.products.find(p => p.id === activeProductId);
+        if (!prod) return;
+
+        prod.tos = document.getElementById('modal-product-tos').value;
+        prod.privacy = document.getElementById('modal-product-privacy').value;
+        prod.keyContract = document.getElementById('modal-product-keycontract').value;
+
+        save();
+        alert("已成功更新該產品合約條款細項！");
+        closeModal('product-modal');
+    }
+
+    function deleteCurrentProduct() {
+        if (!confirm("確定要移除此產品分類嗎？")) return;
+        appData.products = appData.products.filter(p => p.id !== activeProductId);
+        save();
+        closeModal('product-modal');
+        renderProducts();
+    }
+
+    // 3. 每日法學英文與歷程庫邏輯
+    function renderDailyVocab() {
+        const item = legalVocabData[appData.vocabIndex];
+        document.getElementById('daily-vocab-box').innerHTML = `
             <div class="vocab-word">${item.word}</div>
             <div class="vocab-pronounce">${item.pronounce}</div>
             <div class="vocab-meaning">${item.meaning}</div>
@@ -406,114 +907,129 @@
     }
 
     function nextVocab() {
-        currentVocabIndex = (currentVocabIndex + 1) % legalVocabList.length;
-        renderVocab();
+        appData.vocabIndex = (appData.vocabIndex + 1) % legalVocabData.length;
+        save();
+        renderDailyVocab();
     }
 
-    // 新增工作日誌
-    function addDailyLog() {
-        const title = document.getElementById('log-title').value.trim();
-        const detail = document.getElementById('log-detail').value.trim();
-        const category = document.getElementById('log-category').value;
-
-        if (!title) return alert("請輸入主題或案件名稱");
-
-        const newLog = {
-            id: Date.now(),
-            date: new Date().toLocaleDateString('zh-TW'),
-            category,
-            title,
-            detail
-        };
-
-        legalData.logs.unshift(newLog);
-        saveState();
-        document.getElementById('log-title').value = '';
-        document.getElementById('log-detail').value = '';
-        renderLogs();
+    function openVocabHistoryModal() {
+        const container = document.getElementById('vocab-history-list');
+        container.innerHTML = legalVocabData.map((item, idx) => `
+            <div style="border-bottom: 1px solid var(--border); padding: 12px 0;">
+                <div style="font-size: 15px; font-weight: 800; color: var(--brand-blue);">${idx + 1}. ${item.word}</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">${item.pronounce}</div>
+                <div style="font-size: 13px; font-weight: 600; margin-bottom: 6px;">${item.meaning}</div>
+                <div style="font-size: 12px; background: #f8fafc; padding: 6px 10px; border-left: 2px solid #38bdf8; border-radius: 4px; color: var(--text-main); font-style: italic;">${item.clause}</div>
+            </div>
+        `).join('');
+        openModal('vocab-history-modal');
     }
 
-    function deleteLog(id) {
-        if (!confirm("確定要移除這筆紀錄嗎？")) return;
-        legalData.logs = legalData.logs.filter(item => item.id !== id);
-        saveState();
-        renderLogs();
-    }
-
-    function renderLogs() {
-        const query = document.getElementById('search-input').value.toLowerCase();
-        const container = document.getElementById('logs-container');
-        
-        const filtered = legalData.logs.filter(l => 
-            l.title.toLowerCase().includes(query) || l.detail.toLowerCase().includes(query)
-        );
-
-        if (filtered.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted); font-size: 13px;">尚無相關紀錄</div>`;
-            return;
-        }
-
-        container.innerHTML = filtered.map(log => {
-            let tagClass = 'tag-general';
-            let tagText = '關鍵工作';
-            if (log.category === 'discussion') { tagClass = 'tag-discussion'; tagText = 'Issue 探討'; }
-            else if (log.category === 'project') { tagClass = 'tag-project'; tagText = '專案進展'; }
-
-            return `
-                <div class="log-item">
-                    <button class="log-del" onclick="deleteLog(${log.id})" title="刪除">✕</button>
-                    <div class="log-header">
-                        <span class="log-tag ${tagClass}">${tagText}</span>
-                        <span class="log-date">${log.date}</span>
-                    </div>
-                    <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px; color: var(--navy-primary);">${log.title}</div>
-                    <div class="log-content">${log.detail}</div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    // 新增專案排程
-    function addProject() {
-        const title = document.getElementById('proj-title').value.trim();
-        const date = document.getElementById('proj-date').value;
-
-        if (!title) return alert("請輸入專案名稱");
-
-        legalData.projects.push({ id: Date.now(), title, date: date || "未排定" });
-        saveState();
-        document.getElementById('proj-title').value = '';
-        document.getElementById('proj-date').value = '';
-        renderProjects();
-    }
-
-    function deleteProject(id) {
-        legalData.projects = legalData.projects.filter(p => p.id !== id);
-        saveState();
-        renderProjects();
-    }
-
+    // 4. 專案管理邏輯
     function renderProjects() {
-        const container = document.getElementById('projects-container');
-        if (legalData.projects.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding: 10px; color: var(--text-muted); font-size: 12px;">無列管中的專案</div>`;
+        const container = document.getElementById('project-list-container');
+        if (appData.projects.length === 0) {
+            container.innerHTML = `<div style="font-size: 12px; color: var(--text-muted); padding: 8px;">無進行中的重點專案</div>`;
             return;
         }
 
-        container.innerHTML = legalData.projects.map(p => `
-            <div class="project-item">
-                <div>
-                    <h4>${p.title}</h4>
-                    <p>🎯 目標日：${p.date}</p>
+        container.innerHTML = appData.projects.map(proj => `
+            <div class="project-row" onclick="openProjectModal(${proj.id})">
+                <div class="project-row-top">
+                    <span class="project-name">${proj.name}</span>
+                    <span class="project-status-tag">${proj.progress}%</span>
                 </div>
-                <button class="delete-btn-sm" onclick="deleteProject(${p.id})">✕</button>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: ${proj.progress}%;"></div>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; display:flex; justify-content:space-between;">
+                    <span>🎯 目標日：${proj.dueDate || "未設定"}</span>
+                    <span>點擊檢視細項 ➔</span>
+                </div>
             </div>
         `).join('');
     }
 
-    // 啟動加載
-    renderVocab();
-    renderLogs();
+    function openNewProjectModal() {
+        document.getElementById('new-proj-title').value = '';
+        document.getElementById('new-proj-duedate').value = '';
+        openModal('add-project-modal');
+    }
+
+    function confirmAddProject() {
+        const title = document.getElementById('new-proj-title').value.trim();
+        const dueDate = document.getElementById('new-proj-duedate').value;
+        if (!title) return alert("請輸入專案名稱！");
+
+        appData.projects.push({
+            id: Date.now(),
+            name: title,
+            dueDate,
+            progress: 0,
+            notes: ""
+        });
+        save();
+        closeModal('add-project-modal');
+        renderProjects();
+    }
+
+    function openProjectModal(id) {
+        activeProjectId = id;
+        const proj = appData.projects.find(p => p.id === id);
+        if (!proj) return;
+
+        document.getElementById('modal-proj-name').innerText = "🎯 " + proj.name;
+        document.getElementById('modal-proj-progress').value = proj.progress;
+        document.getElementById('modal-proj-percent-text').innerText = proj.progress + "%";
+        document.getElementById('modal-proj-notes').value = proj.notes || "";
+
+        openModal('project-detail-modal');
+    }
+
+    function updateProgressDisplay(val) {
+        document.getElementById('modal-proj-percent-text').innerText = val + "%";
+    }
+
+    function saveProjectDetails() {
+        const proj = appData.projects.find(p => p.id === activeProjectId);
+        if (!proj) return;
+
+        proj.progress = parseInt(document.getElementById('modal-proj-progress').value) || 0;
+        proj.notes = document.getElementById('modal-proj-notes').value;
+
+        save();
+        alert("專案進度與細項已儲存！");
+        closeModal('project-detail-modal');
+        renderProjects();
+    }
+
+    function deleteCurrentProject() {
+        if (!confirm("確定要刪除此專案嗎？")) return;
+        appData.projects = appData.projects.filter(p => p.id !== activeProjectId);
+        save();
+        closeModal('project-detail-modal');
+        renderProjects();
+    }
+
+    // Modal 開關小幫手
+    function openModal(id) {
+        document.getElementById(id).style.display = 'flex';
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal-overlay')) {
+            event.target.style.display = 'none';
+        }
+    };
+
+    // 系統載入
+    renderIssues();
+    renderProducts();
+    renderDailyVocab();
     renderProjects();
 </script>
 </body>
