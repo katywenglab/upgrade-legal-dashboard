@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Legal Ops & Knowledge Hub | 法務實戰與知識儀表板</title>
+
+    <!-- Firebase SDK 9.x Compat -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
     <style>
         :root {
             --bg-base: #f8fafc;
@@ -16,9 +22,8 @@
             --text-main: #1e293b;
             --text-muted: #64748b;
             --border: #e2e8f0;
-            --border-hover: #cbd5e1;
 
-            /* 鵝黃色系 (Soft Warm Yellow) */
+            /* 鵝黃色系 */
             --yellow-accent: #f59e0b;
             --yellow-progress: #fcd34d;
             --yellow-progress-bg: #fef3c7;
@@ -48,6 +53,91 @@
             line-height: 1.5;
         }
 
+        /* 🔒 登入 / 註冊全螢幕驗證面板 */
+        #auth-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 400px;
+            border-radius: var(--radius-lg);
+            padding: 36px 30px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .auth-card h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--navy-dark);
+            margin-bottom: 6px;
+        }
+
+        .auth-card p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            outline: none;
+            background: #f8fafc;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+
+        .auth-input:focus {
+            border-color: var(--brand-blue);
+            background: #ffffff;
+        }
+
+        .auth-btn {
+            width: 100%;
+            background: var(--brand-blue);
+            color: #ffffff;
+            border: none;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 4px;
+        }
+
+        .auth-btn:hover { background: var(--brand-blue-hover); }
+
+        .auth-switch-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 16px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .auth-error {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 10px;
+            display: none;
+            font-weight: 600;
+        }
+
+        /* 儀表板主架構 */
         header {
             max-width: 1400px;
             margin: 0 auto 24px auto;
@@ -72,15 +162,34 @@
             margin-top: 2px;
         }
 
-        .header-badge {
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-email-badge {
+            font-size: 12px;
+            background: #eff6ff;
+            color: var(--brand-blue);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            border: 1px solid #bfdbfe;
+        }
+
+        .btn-logout {
             background: #ffffff;
             border: 1px solid var(--border);
-            padding: 8px 14px;
+            padding: 6px 12px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-muted);
+            cursor: pointer;
         }
+
+        .btn-logout:hover { color: #ef4444; border-color: #fca5a5; }
 
         .dashboard-container {
             max-width: 1400px;
@@ -425,12 +534,34 @@
 </head>
 <body>
 
+    <!-- 🔒 登入 / 註冊全螢幕驗證面板 -->
+    <div id="auth-overlay">
+        <div class="auth-card">
+            <div style="font-size: 36px; margin-bottom: 10px;">⚖️</div>
+            <h2 id="auth-title">Legal Ops Hub 登入</h2>
+            <p id="auth-subtitle">登入專屬帳號以同步雲端實戰經驗與合約庫</p>
+
+            <input type="email" id="auth-email" class="auth-input" placeholder="電子信箱 (例：you@law.com)">
+            <input type="password" id="auth-pwd" class="auth-input" placeholder="密碼 (至少 6 碼)" onkeydown="if(event.key==='Enter') handleAuthAction()">
+
+            <button class="auth-btn" id="auth-main-btn" onclick="handleAuthAction()">登入工作台</button>
+            <div id="auth-error-msg" class="auth-error"></div>
+
+            <div class="auth-switch-text" id="auth-toggle-link" onclick="toggleAuthMode()">
+                還沒有帳號？點此免費註冊專屬工作台
+            </div>
+        </div>
+    </div>
+
     <header>
         <div class="header-title">
             <h1>⚖️ Legal Ops & Knowledge Hub</h1>
             <p>實戰爭點知識・制式與產品合約庫・專案進度追蹤・法學英文歷程</p>
         </div>
-        <div class="header-badge" id="current-date-badge"></div>
+        <div class="header-actions">
+            <span class="user-email-badge" id="current-user-badge">載入中...</span>
+            <button class="btn-logout" onclick="logout()">登出</button>
+        </div>
     </header>
 
     <div class="dashboard-container">
@@ -492,7 +623,7 @@
                     </div>
                 </div>
                 <div style="font-size: 11px; color: var(--text-muted); text-align: center;">
-                    點擊標籤進入完整清單，支援直接上傳與下載 Word、PDF 等大型合約檔
+                    雲端即時同步，跨電腦、筆電或手機隨時查詢
                 </div>
             </div>
 
@@ -527,9 +658,7 @@
         copyright @凱蒂嗡嗡嗡
     </footer>
 
-    <!-- ================= 彈窗區塊 (Modals) ================= -->
-
-    <!-- Modal 1: 爭點詳細資料彈窗（支援編輯標題、追加補充、上傳附件） -->
+    <!-- Modals -->
     <div class="modal-overlay" id="issue-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('issue-modal')">✕</button>
@@ -556,7 +685,6 @@
         </div>
     </div>
 
-    <!-- Modal 2: 合約條款知識庫清單 -->
     <div class="modal-overlay" id="contract-hub-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('contract-hub-modal')">✕</button>
@@ -568,7 +696,6 @@
         </div>
     </div>
 
-    <!-- Modal 3: 新增合約條目 -->
     <div class="modal-overlay" id="add-contract-item-modal">
         <div class="modal-window" style="max-width: 480px;">
             <button class="modal-close-btn" onclick="closeModal('add-contract-item-modal')">✕</button>
@@ -590,7 +717,6 @@
         </div>
     </div>
 
-    <!-- Modal 4: 自訂法學英文單字 -->
     <div class="modal-overlay" id="add-vocab-modal">
         <div class="modal-window" style="max-width: 460px;">
             <button class="modal-close-btn" onclick="closeModal('add-vocab-modal')">✕</button>
@@ -612,7 +738,6 @@
         </div>
     </div>
 
-    <!-- Modal 5: 英文歷程庫 -->
     <div class="modal-overlay" id="vocab-history-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('vocab-history-modal')">✕</button>
@@ -621,7 +746,6 @@
         </div>
     </div>
 
-    <!-- Modal 6: 專案彈窗（支援編輯專案名稱、進度、筆記與檔案） -->
     <div class="modal-overlay" id="project-detail-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('project-detail-modal')">✕</button>
@@ -648,7 +772,6 @@
         </div>
     </div>
 
-    <!-- Modal 7: 新增重點專案 -->
     <div class="modal-overlay" id="add-project-modal">
         <div class="modal-window" style="max-width: 420px;">
             <button class="modal-close-btn" onclick="closeModal('add-project-modal')">✕</button>
@@ -660,8 +783,26 @@
     </div>
 
 <script>
-    // --- 1. IndexedDB 核心模組（支援超大容量檔案儲存） ---
-    const DB_NAME = 'LegalOpsFilesStore_v2';
+    // ================= ⚠️ 請在此填入妳在 Firebase 取得的專案金鑰 ⚠️ =================
+const firebaseConfig = {
+  apiKey: "AIzaSyAQGvIT3qkmqjcEaC1l9tAGRmmKuWVgIDw",
+  authDomain: "legal-ops-hub-f565d.firebaseapp.com",
+  projectId: "legal-ops-hub-f565d",
+  storageBucket: "legal-ops-hub-f565d.firebasestorage.app",
+  messagingSenderId: "467720779560",
+  appId: "1:467720779560:web:0baae8e9e5c51fa46dc21d",
+  measurementId: "G-3MJ79VGVTC"
+};
+    // 初始化 Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser = null;
+    let isRegisterMode = false;
+
+    // --- 本地 IndexedDB 模組（儲存 Word、PDF 檔案） ---
+    const DB_NAME = 'LegalOpsFilesStore_v3';
     const DB_VERSION = 1;
     const STORE_NAME = 'blobs';
     let dbPromise = null;
@@ -671,9 +812,9 @@
             dbPromise = new Promise((resolve, reject) => {
                 const req = indexedDB.open(DB_NAME, DB_VERSION);
                 req.onupgradeneeded = (e) => {
-                    const db = e.target.result;
-                    if (!db.objectStoreNames.contains(STORE_NAME)) {
-                        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    const d = e.target.result;
+                    if (!d.objectStoreNames.contains(STORE_NAME)) {
+                        d.createObjectStore(STORE_NAME, { keyPath: 'id' });
                     }
                 };
                 req.onsuccess = (e) => resolve(e.target.result);
@@ -684,9 +825,9 @@
     }
 
     async function storeBlob(id, file) {
-        const db = await getDB();
+        const d = await getDB();
         return new Promise((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, 'readwrite');
+            const tx = d.transaction(STORE_NAME, 'readwrite');
             const store = tx.objectStore(STORE_NAME);
             store.put({ id: String(id), blob: file, name: file.name, type: file.type });
             tx.oncomplete = () => resolve();
@@ -695,9 +836,9 @@
     }
 
     async function fetchBlob(id) {
-        const db = await getDB();
+        const d = await getDB();
         return new Promise((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, 'readonly');
+            const tx = d.transaction(STORE_NAME, 'readonly');
             const store = tx.objectStore(STORE_NAME);
             const req = store.get(String(id));
             req.onsuccess = () => resolve(req.result);
@@ -722,8 +863,79 @@
         }
     }
 
-    // --- 2. 資料模型與持久化 ---
-    let userVocabList = JSON.parse(localStorage.getItem('legal_vocab_custom_v4')) || [
+    // --- 使用者驗證監聽 ---
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            currentUser = user;
+            document.getElementById('auth-overlay').style.display = 'none';
+            document.getElementById('current-user-badge').innerText = '👤 ' + user.email;
+            initUserDataListener();
+        } else {
+            currentUser = null;
+            document.getElementById('auth-overlay').style.display = 'flex';
+        }
+    });
+
+    function toggleAuthMode() {
+        isRegisterMode = !isRegisterMode;
+        const title = document.getElementById('auth-title');
+        const subtitle = document.getElementById('auth-subtitle');
+        const mainBtn = document.getElementById('auth-main-btn');
+        const toggleLink = document.getElementById('auth-toggle-link');
+        const errorMsg = document.getElementById('auth-error-msg');
+
+        errorMsg.style.display = 'none';
+        if (isRegisterMode) {
+            title.innerText = "註冊全新法務帳號";
+            subtitle.innerText = "設定專屬帳密，所有實戰資料完全雲端加密隔離";
+            mainBtn.innerText = "立即註冊";
+            toggleLink.innerText = "已有帳號？點此登入";
+        } else {
+            title.innerText = "Legal Ops Hub 登入";
+            subtitle.innerText = "登入專屬帳號以同步雲端實戰經驗與合約庫";
+            mainBtn.innerText = "登入工作台";
+            toggleLink.innerText = "還沒有帳號？點此免費註冊專屬工作台";
+        }
+    }
+
+    async function handleAuthAction() {
+        const email = document.getElementById('auth-email').value.trim();
+        const pwd = document.getElementById('auth-pwd').value.trim();
+        const errEl = document.getElementById('auth-error-msg');
+
+        if (!email || !pwd) {
+            errEl.innerText = "請填寫完整帳號與密碼！";
+            errEl.style.display = 'block';
+            return;
+        }
+
+        try {
+            if (isRegisterMode) {
+                await auth.createUserWithEmailAndPassword(email, pwd);
+                alert("註冊成功！系統已為您建立專屬雲端空間。");
+            } else {
+                await auth.signInWithEmailAndPassword(email, pwd);
+            }
+        } catch (error) {
+            errEl.innerText = "驗證失敗：" + error.message;
+            errEl.style.display = 'block';
+        }
+    }
+
+    function logout() {
+        auth.signOut();
+    }
+
+    // --- 資料模型與雲端同步 ---
+    let appData = {
+        issues: [],
+        standardContracts: [],
+        productContracts: [],
+        projects: [],
+        vocabIndex: 0
+    };
+
+    let userVocabList = [
         {
             word: "Indemnification",
             pronounce: "[ɪnˌdɛmnəfɪˈkeɪʃən] (n.) 補償、損害免責",
@@ -735,72 +947,43 @@
             pronounce: "[ˈlɪkwɪdeɪtɪd ˈdæmɪdʒɪz] (n.) 預定違約金",
             meaning: "締約雙方預先約定當違約發生時應支付的賠償額，免除日後訴訟舉證之耗損。",
             clause: "The parties agree that liquidated damages shall reflect a reasonable pre-estimate of loss."
-        },
-        {
-            word: "Severability",
-            pronounce: "[ˌsɛvərəˈbɪlɪti] (n.) 可分割性條款",
-            meaning: "若合約某條款被認定無效，其餘條款仍繼續維持完整效力。",
-            clause: "If any provision is held unenforceable, the remaining provisions shall continue in full force."
-        },
-        {
-            word: "Force Majeure",
-            pronounce: "[ˌfɔːrs məˈʒɜːr] (n.) 不可抗力",
-            meaning: "無法預見、無法避免且無法克服之客觀障礙（如天災、禁令），可構成履行免責。",
-            clause: "Neither party shall be liable for delay caused by events of Force Majeure beyond control."
         }
     ];
-
-    let appData = JSON.parse(localStorage.getItem('legal_ops_hub_v4')) || {
-        issues: [
-            {
-                id: 1,
-                title: "高階經理人合約競業禁止條款之合理補償認定",
-                category: "research",
-                detail: "【爭點背景】業務副總離職擬前往競業任職。\n【實務分析】依勞基法第 9-1 條，每月補償金額若未達離職前月工資 50%，法院極高機率判定無效。\n【因應策略】後續修訂制式約定書時，應明定階梯式補償與返還違約金門檻。",
-                date: "2026/11/02",
-                files: []
-            }
-        ],
-        standardContracts: [
-            { id: 1, name: "通用雙向保密協議 (Mutual NDA)", category: "通用", summary: "保密期 3 年，排除獨立開發及已知資訊，已核定標準範本。", fileId: null, fileName: null },
-            { id: 2, name: "辦公室房屋租賃契約 (範本)", category: "總務租賃", summary: "押金 2 個月，修繕責任以房東承擔結構性修繕為原則。", fileId: null, fileName: null }
-        ],
-        productContracts: [
-            { id: 101, name: "SaaS 平台服務條款 (Terms of Service)", category: "SaaS產品", summary: "SLA 99.9% 服務可用性，責任上限為過去 12 個月實收費用。", fileId: null, fileName: null },
-            { id: 102, name: "App 使用者隱私權政策 (Privacy Policy)", category: "行動App", summary: "整合第三方廣告 SDK 宣告與跨國資料傳輸條款，符合個資法規。", fileId: null, fileName: null }
-        ],
-        projects: [
-            {
-                id: 201,
-                name: "全公司制式合約與法遵指引年度翻修",
-                dueDate: "2026-11-30",
-                progress: 65,
-                notes: "• [完成] NDA 與採購合約翻新\n• [進行中] 業務經銷合約草案覆核",
-                files: []
-            }
-        ],
-        vocabIndex: 0
-    };
 
     let currentFilter = "all";
     let activeIssueId = null;
     let currentContractType = "standard";
     let activeProjectId = null;
 
-    function save() {
-        try {
-            localStorage.setItem('legal_ops_hub_v4', JSON.stringify(appData));
-            localStorage.setItem('legal_vocab_custom_v4', JSON.stringify(userVocabList));
-        } catch (e) {
-            console.warn('localStorage 寫入提示:', e);
-        }
+    // 監聽專屬個人雲端資料
+    function initUserDataListener() {
+        if (!currentUser) return;
+
+        db.collection("user_legal_data").doc(currentUser.uid)
+            .onSnapshot((doc) => {
+                if (doc.exists) {
+                    const remoteData = doc.data();
+                    appData = remoteData.appData || appData;
+                    userVocabList = remoteData.userVocabList || userVocabList;
+                } else {
+                    saveToCloud();
+                }
+                renderIssues();
+                renderDailyVocab();
+                renderProjects();
+            });
     }
 
-    document.getElementById('current-date-badge').innerText = new Date().toLocaleDateString('zh-TW', {
-        year: 'numeric', month: 'long', day: 'numeric', weekday: 'short'
-    });
+    function saveToCloud() {
+        if (!currentUser) return;
+        db.collection("user_legal_data").doc(currentUser.uid).set({
+            appData,
+            userVocabList,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    }
 
-    // --- 3. 爭點與實戰經驗邏輯（支援編輯標題與附件上傳） ---
+    // --- 爭點實戰經驗模組 ---
     function setCategoryFilter(cat, elem) {
         currentFilter = cat;
         document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active'));
@@ -824,8 +1007,9 @@
             files: []
         };
 
+        if (!appData.issues) appData.issues = [];
         appData.issues.unshift(newIssue);
-        save();
+        saveToCloud();
         document.getElementById('issue-title').value = '';
         document.getElementById('issue-detail').value = '';
         renderIssues();
@@ -835,7 +1019,8 @@
         const query = document.getElementById('issue-search').value.toLowerCase();
         const container = document.getElementById('issue-list-container');
 
-        const filtered = appData.issues.filter(item => {
+        const list = appData.issues || [];
+        const filtered = list.filter(item => {
             const matchesCat = (currentFilter === "all") || (item.category === currentFilter);
             const matchesQuery = item.title.toLowerCase().includes(query) || item.detail.toLowerCase().includes(query);
             return matchesCat && matchesQuery;
@@ -931,7 +1116,7 @@
                 issue.files.push({ fileId, name: file.name });
             }
 
-            save();
+            saveToCloud();
             renderIssues();
             document.getElementById('modal-issue-detail').innerText = issue.detail;
             document.getElementById('modal-issue-append').value = '';
@@ -939,7 +1124,6 @@
             renderIssueFiles(issue);
             alert("爭點名稱、筆記與附件已成功儲存！");
         } catch (err) {
-            console.error(err);
             alert("儲存爭點發生錯誤：" + err.message);
         } finally {
             saveBtn.disabled = false;
@@ -947,7 +1131,7 @@
         }
     }
 
-    // --- 4. 合約條款知識庫邏輯 ---
+    // --- 合約知識庫模組 ---
     function openContractListModal(type) {
         currentContractType = type;
         const titleText = type === 'standard' ? "📌 制式合約、條款清單" : "🚀 產品重要合約、條款清單";
@@ -957,7 +1141,7 @@
     }
 
     function renderContractItemsList() {
-        const list = currentContractType === 'standard' ? appData.standardContracts : appData.productContracts;
+        const list = currentContractType === 'standard' ? (appData.standardContracts || []) : (appData.productContracts || []);
         const container = document.getElementById('contract-items-container');
 
         if (!list || list.length === 0) {
@@ -1006,6 +1190,9 @@
         saveBtn.innerText = "儲存中，請稍候...";
 
         try {
+            if (currentContractType === 'standard' && !appData.standardContracts) appData.standardContracts = [];
+            if (currentContractType === 'product' && !appData.productContracts) appData.productContracts = [];
+
             const targetList = currentContractType === 'standard' ? appData.standardContracts : appData.productContracts;
             let fileId = null;
             let fileName = null;
@@ -1026,12 +1213,11 @@
                 fileName
             });
 
-            save();
+            saveToCloud();
             closeModal('add-contract-item-modal');
             renderContractItemsList();
-            alert("合約檔案已成功儲存至本地資料庫！");
+            alert("合約資料已成功同步儲存！");
         } catch (err) {
-            console.error(err);
             alert("儲存檔案失敗：" + err.message);
         } finally {
             saveBtn.disabled = false;
@@ -1039,9 +1225,9 @@
         }
     }
 
-    // --- 5. 每日法學英文與自訂單字邏輯 ---
+    // --- 每日法學英文模組 ---
     function renderDailyVocab() {
-        if (userVocabList.length === 0) return;
+        if (!userVocabList || userVocabList.length === 0) return;
         const item = userVocabList[appData.vocabIndex % userVocabList.length];
         document.getElementById('daily-vocab-box').innerHTML = `
             <div class="vocab-word">${item.word}</div>
@@ -1053,7 +1239,7 @@
 
     function nextVocab() {
         appData.vocabIndex = (appData.vocabIndex + 1) % userVocabList.length;
-        save();
+        saveToCloud();
         renderDailyVocab();
     }
 
@@ -1071,7 +1257,7 @@
         const meaning = document.getElementById('new-vocab-meaning').value.trim();
         const clause = document.getElementById('new-vocab-clause').value.trim();
 
-        if (!word || !meaning) return alert("請至少填寫單字與中文釋義！");
+        if (!word || !meaning) return alert("請填寫單字與中文釋義！");
 
         userVocabList.unshift({
             word,
@@ -1081,7 +1267,7 @@
         });
 
         appData.vocabIndex = 0;
-        save();
+        saveToCloud();
         closeModal('add-vocab-modal');
         renderDailyVocab();
         alert("已成功加入法學英文單字庫！");
@@ -1091,7 +1277,7 @@
         const container = document.getElementById('vocab-history-list');
         container.innerHTML = userVocabList.map((item, idx) => `
             <div style="border-bottom: 1px solid var(--border); padding: 12px 0;">
-                <div style="font-size: 15px; font-weight: 800; color: var(--brand-blue);">${idx + 1}. ${item.word}</div>
+                <div style="font-size: 15px; font-weight: 800; color: var(--brand-blue);">${idx + 1}.${item.word}</div>
                 <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">${item.pronounce}</div>
                 <div style="font-size: 13px; font-weight: 600; margin-bottom: 6px;">${item.meaning}</div>
                 <div style="font-size: 12px; background: #f8fafc; padding: 6px 10px; border-left: 2px solid #38bdf8; border-radius: 4px; color: var(--text-main); font-style: italic;">${item.clause}</div>
@@ -1100,147 +1286,19 @@
         openModal('vocab-history-modal');
     }
 
-    // --- 6. 專案管理邏輯（鵝黃色進度條與名稱編輯） ---
+    // --- 專案管理模組 ---
     function renderProjects() {
         const container = document.getElementById('project-list-container');
-        if (appData.projects.length === 0) {
+        const list = appData.projects || [];
+        if (list.length === 0) {
             container.innerHTML = `<div style="font-size: 12px; color: var(--text-muted); padding: 8px;">無進行中的重點專案</div>`;
             return;
         }
 
-        container.innerHTML = appData.projects.map(proj => `
+        container.innerHTML = list.map(proj => `
             <div class="project-row" onclick="openProjectModal(${proj.id})">
                 <div class="project-row-top">
                     <span class="project-name">${proj.name}</span>
                     <span class="project-status-tag">${proj.progress}%</span>
                 </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" style="width: ${proj.progress}%;"></div>
-                </div>
-                <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; display:flex; justify-content:space-between;">
-                    <span>🎯 目標日：${proj.dueDate || "未設定"}</span>
-                    <span>檢視進度與編輯 ➔</span>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function openNewProjectModal() {
-        document.getElementById('new-proj-title').value = '';
-        document.getElementById('new-proj-duedate').value = '';
-        openModal('add-project-modal');
-    }
-
-    function confirmAddProject() {
-        const title = document.getElementById('new-proj-title').value.trim();
-        const dueDate = document.getElementById('new-proj-duedate').value;
-        if (!title) return alert("請輸入專案名稱！");
-
-        appData.projects.push({
-            id: Date.now(),
-            name: title,
-            dueDate,
-            progress: 0,
-            notes: "",
-            files: []
-        });
-        save();
-        closeModal('add-project-modal');
-        renderProjects();
-    }
-
-    function openProjectModal(id) {
-        activeProjectId = id;
-        const proj = appData.projects.find(p => p.id === id);
-        if (!proj) return;
-
-        document.getElementById('modal-proj-edit-name').value = proj.name;
-        document.getElementById('modal-proj-progress').value = proj.progress;
-        document.getElementById('modal-proj-percent-text').innerText = proj.progress + "%";
-        document.getElementById('modal-proj-notes').value = proj.notes || "";
-        document.getElementById('modal-proj-file-input').value = '';
-
-        renderProjectFiles(proj);
-        openModal('project-detail-modal');
-    }
-
-    function renderProjectFiles(proj) {
-        const container = document.getElementById('modal-proj-attachments');
-        if (!proj.files || proj.files.length === 0) {
-            container.innerHTML = `<span style="font-size: 12px; color: var(--text-muted);">尚無上傳附件</span>`;
-            return;
-        }
-
-        container.innerHTML = proj.files.map(f => `
-            <div style="margin-top: 4px;">
-                <button class="file-badge" onclick="downloadFileFromDB('${f.fileId}', '${f.name}')">📥 下載附件：${f.name}</button>
-            </div>
-        `).join('');
-    }
-
-    function updateProgressDisplay(val) {
-        document.getElementById('modal-proj-percent-text').innerText = val + "%";
-    }
-
-    async function saveProjectDetails() {
-        const saveBtn = document.getElementById('btn-save-project');
-        const proj = appData.projects.find(p => p.id === activeProjectId);
-        if (!proj) return;
-
-        const updatedName = document.getElementById('modal-proj-edit-name').value.trim();
-        if (!updatedName) return alert("專案名稱不得為空！");
-
-        saveBtn.disabled = true;
-        saveBtn.innerText = "儲存中...";
-
-        try {
-            proj.name = updatedName;
-            proj.progress = parseInt(document.getElementById('modal-proj-progress').value) || 0;
-            proj.notes = document.getElementById('modal-proj-notes').value;
-
-            const fileInput = document.getElementById('modal-proj-file-input');
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const fileId = 'proj_blob_' + Date.now();
-                await storeBlob(fileId, file);
-
-                if (!proj.files) proj.files = [];
-                proj.files.push({ fileId, name: file.name });
-            }
-
-            save();
-            renderProjects();
-            renderProjectFiles(proj);
-            document.getElementById('modal-proj-file-input').value = '';
-            alert("專案名稱、進度與附件已儲存！");
-        } catch (err) {
-            console.error(err);
-            alert("專案儲存失敗：" + err.message);
-        } finally {
-            saveBtn.disabled = false;
-            saveBtn.innerText = "儲存名稱、進度與檔案";
-        }
-    }
-
-    // Modal 開關小幫手
-    function openModal(id) {
-        document.getElementById(id).style.display = 'flex';
-    }
-
-    function closeModal(id) {
-        document.getElementById(id).style.display = 'none';
-    }
-
-    window.onclick = function(event) {
-        if (event.target.classList.contains('modal-overlay')) {
-            event.target.style.display = 'none';
-        }
-    };
-
-    // 系統載入
-    renderIssues();
-    renderDailyVocab();
-    renderProjects();
-</script>
-</body>
-</html>
+                <div class="progress-
