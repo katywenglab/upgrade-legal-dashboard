@@ -17,8 +17,7 @@
             --text-muted: #64748b;
             --border: #e2e8f0;
             --border-hover: #cbd5e1;
-            
-            /* 4 大實戰分類標籤色彩 */
+
             --cat-litigation: #fee2e2;
             --cat-litigation-text: #991b1b;
             --cat-nonlitigation: #e0e7ff;
@@ -40,11 +39,10 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "PingFang TC", sans-serif;
             background-color: var(--bg-base);
             color: var(--text-main);
-            padding: 24px 20px 80px 20px;
+            padding: 24px 20px 40px 20px;
             line-height: 1.5;
         }
 
-        /* 頂部 Header */
         header {
             max-width: 1400px;
             margin: 0 auto 24px auto;
@@ -79,7 +77,6 @@
             color: var(--text-muted);
         }
 
-        /* 主網格架構：左大欄、右副欄 */
         .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -92,7 +89,6 @@
             .dashboard-container { grid-template-columns: 1fr; }
         }
 
-        /* 卡片共用樣式 */
         .card {
             background: var(--surface);
             border-radius: var(--radius-lg);
@@ -100,11 +96,6 @@
             box-shadow: var(--shadow-sm);
             padding: 20px;
             margin-bottom: 24px;
-            transition: box-shadow 0.2s;
-        }
-
-        .card:hover {
-            box-shadow: var(--shadow-md);
         }
 
         .card-header {
@@ -123,7 +114,6 @@
             gap: 8px;
         }
 
-        /* 表單與輸入控制 */
         input, select, textarea {
             width: 100%;
             padding: 10px 12px;
@@ -173,7 +163,6 @@
         }
         .btn-brand:hover { background: var(--brand-blue-hover); }
 
-        /* 分類標籤樣式 */
         .cat-tag {
             font-size: 11px;
             font-weight: 700;
@@ -187,7 +176,6 @@
         .tag-research { background: var(--cat-research); color: var(--cat-research-text); }
         .tag-news { background: var(--cat-news); color: var(--cat-news-text); }
 
-        /* 1. 精簡 Issue 清單列表（點擊彈出詳情） */
         .issue-filter-bar {
             display: flex;
             gap: 8px;
@@ -253,66 +241,43 @@
             margin-left: 12px;
         }
 
-        /* 2. 合約管理區塊 */
-        .contract-section {
-            margin-bottom: 20px;
-        }
-
-        .contract-section h3 {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        /* 合約卡片大標籤切換 */
+        .hub-tag-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
             margin-bottom: 10px;
         }
 
-        .contract-pill-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .contract-pill {
-            padding: 8px 14px;
+        .hub-main-card {
             background: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--navy-primary);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
             transition: all 0.2s;
+            text-align: center;
         }
 
-        .contract-pill:hover {
+        .hub-main-card:hover {
             border-color: var(--brand-blue);
             background: #eff6ff;
-            color: var(--brand-blue);
+            transform: translateY(-2px);
         }
 
-        .product-card-item {
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 12px 14px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            background: #ffffff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s;
+        .hub-main-card h3 {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--navy-primary);
+            margin-bottom: 4px;
         }
 
-        .product-card-item:hover {
-            border-color: var(--brand-blue);
-            background: #f0fdfa;
+        .hub-main-card p {
+            font-size: 12px;
+            color: var(--text-muted);
         }
 
-        /* 3. 每日法學英文卡片 */
+        /* 每日法學英文 */
         .vocab-box {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: #ffffff;
@@ -334,7 +299,7 @@
             font-style: italic;
         }
 
-        /* 4. 專案清單與進度條 */
+        /* 專案卡片 */
         .project-row {
             padding: 12px 14px;
             border: 1px solid var(--border);
@@ -370,11 +335,11 @@
             border-radius: 4px;
         }
 
-        /* 彈窗（Modal）通用樣式 */
+        /* 彈窗樣式 */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.5);
+            background: rgba(15, 23, 42, 0.55);
             display: none;
             justify-content: center;
             align-items: center;
@@ -386,8 +351,8 @@
         .modal-window {
             background: #ffffff;
             width: 100%;
-            max-width: 600px;
-            max-height: 85vh;
+            max-width: 650px;
+            max-height: 88vh;
             border-radius: var(--radius-lg);
             padding: 24px;
             box-shadow: var(--shadow-lg);
@@ -414,25 +379,57 @@
 
         .modal-close-btn:hover { background: #e2e8f0; color: #000; }
         .detail-label { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
-        .detail-block { background: #f8fafc; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; white-space: pre-wrap; }
+        .detail-block { background: #f8fafc; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px; white-space: pre-wrap; }
+
+        .contract-item-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            margin-bottom: 10px;
+            background: #ffffff;
+        }
+
+        .file-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #eff6ff;
+            color: var(--brand-blue);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        footer {
+            max-width: 1400px;
+            margin: 40px auto 0 auto;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
 
     <header>
         <div class="header-title">
-            <h1>⚖️ Legal Ops & Insights Hub</h1>
-            <p>實戰爭點研究・產品與制式合約庫・專案進度追蹤・法學英文歷程</p>
+            <h1>⚖️ Legal Ops & Knowledge Hub</h1>
+            <p>實戰爭點知識・制式與產品合約庫・專案進度追蹤・法學英文歷程</p>
         </div>
         <div class="header-badge" id="current-date-badge"></div>
     </header>
 
     <div class="dashboard-container">
         
-        <!-- ================= 左側大欄：重點 Issue 與 實踐經驗庫 ================= -->
+        <!-- 左側主欄：重點爭點與實戰經驗庫 -->
         <div class="col-main">
             
-            <!-- 新增重點爭點與實戰經驗 -->
             <div class="card">
                 <div class="card-header">
                     <h2>💡 快速記錄新爭點 / 實戰心得</h2>
@@ -444,22 +441,20 @@
                         <option value="research">🔍 法律議題研究</option>
                         <option value="news">🌐 關注新知</option>
                     </select>
-                    <input type="text" id="issue-title" placeholder="輸入核心爭點摘要（例：遠端工作員工職災認定要件）" style="margin-bottom: 0;">
+                    <input type="text" id="issue-title" placeholder="輸入核心爭點摘要（例：競業禁止條款之代償金認定）" style="margin-bottom: 0;">
                 </div>
-                <textarea id="issue-detail" rows="3" placeholder="請簡述事實背景、法院或主管機關見解、以及實務應對建議..."></textarea>
+                <textarea id="issue-detail" rows="3" placeholder="簡述事實背景、法院或主管機關見解、以及實務應對建議..."></textarea>
                 <div style="display: flex; justify-content: flex-end;">
                     <button class="btn btn-brand" onclick="addIssue()">儲存經驗卡片</button>
                 </div>
             </div>
 
-            <!-- 實戰經驗庫（精簡清單呈現，支援點選詳情與篩選） -->
             <div class="card">
                 <div class="card-header">
-                    <h2>📚 實戰經驗與爭點庫 (點擊檢視詳情)</h2>
-                    <input type="text" id="issue-search" placeholder="🔍 搜尋爭點關鍵字..." style="width: 180px; margin-bottom: 0;" oninput="renderIssues()">
+                    <h2>📚 實戰經驗與爭點庫 (點擊展開檢視與追加紀錄)</h2>
+                    <input type="text" id="issue-search" placeholder="🔍 搜尋關鍵字..." style="width: 180px; margin-bottom: 0;" oninput="renderIssues()">
                 </div>
 
-                <!-- 分類篩選 Bar -->
                 <div class="issue-filter-bar">
                     <div class="filter-chip active" onclick="setCategoryFilter('all', this)">全部全部</div>
                     <div class="filter-chip" onclick="setCategoryFilter('litigation', this)">⚖️ 訴訟</div>
@@ -468,54 +463,51 @@
                     <div class="filter-chip" onclick="setCategoryFilter('news', this)">🌐 關注新知</div>
                 </div>
 
-                <!-- 精簡清單列表容器 -->
                 <div id="issue-list-container"></div>
             </div>
 
         </div>
 
-        <!-- ================= 右側副欄：合約庫、法學英文、專案進度 ================= -->
+        <!-- 右側副欄：合約庫、法學英文、專案進度 -->
         <div class="col-sub">
             
-            <!-- 2. 合約庫 (通用制式合約 + 產品重要合約) -->
+            <!-- 2. 合約條款知識庫（制式合約/條款 vs 產品重要合約/條款） -->
             <div class="card">
                 <div class="card-header">
-                    <h2>📁 合約知識庫</h2>
-                    <button class="btn btn-sub" style="font-size: 11px; padding: 4px 8px;" onclick="openAddProductModal()">+ 新增產品</button>
+                    <h2>📁 合約條款知識庫</h2>
                 </div>
-
-                <!-- 通用制式合約 -->
-                <div class="contract-section">
-                    <h3>📌 通用制式合約範本</h3>
-                    <div class="contract-pill-grid">
-                        <div class="contract-pill" onclick="viewStandardContract('保密協議 (NDA)')">🔒 保密合約 (NDA)</div>
-                        <div class="contract-pill" onclick="viewStandardContract('房屋/場地租賃契約')">🏢 租賃契約</div>
-                        <div class="contract-pill" onclick="viewStandardContract('勞動契約與競業限制')">👔 聘僱/勞動合約</div>
-                        <div class="contract-pill" onclick="viewStandardContract('採購/委任勞務合約')">📦 採購與勞務合約</div>
+                <div class="hub-tag-grid">
+                    <div class="hub-main-card" onclick="openContractListModal('standard')">
+                        <h3>📌 制式合約、條款</h3>
+                        <p>保密、租賃、聘僱等通用範本庫</p>
+                    </div>
+                    <div class="hub-main-card" onclick="openContractListModal('product')">
+                        <h3>🚀 產品重要合約、條款</h3>
+                        <p>依產品區分之服務條款、隱私權、協議</p>
                     </div>
                 </div>
-
-                <!-- 依產品區分之重要合約 -->
-                <div class="contract-section" style="margin-bottom: 0;">
-                    <h3>🚀 產品重要合約 (點擊查看三合一條款)</h3>
-                    <div id="product-list-container"></div>
+                <div style="font-size: 11px; color: var(--text-muted); text-align: center;">
+                    點擊標籤進入完整清單，支援新增自訂合約、上傳附件檔案與摘要筆記
                 </div>
             </div>
 
-            <!-- 3. 每日法學英文與學習歷程 -->
+            <!-- 3. 每日法學英文與自訂單字上傳 -->
             <div class="card">
                 <div class="card-header">
                     <h2>📖 每日法學英文 (Daily Legal English)</h2>
-                    <button class="btn btn-sub" style="font-size: 11px; padding: 4px 8px;" onclick="openVocabHistoryModal()">歷程庫 📚</button>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="btn btn-sub" style="font-size: 11px; padding: 4px 8px;" onclick="openNewVocabModal()">+ 新增單字</button>
+                        <button class="btn btn-sub" style="font-size: 11px; padding: 4px 8px;" onclick="openVocabHistoryModal()">歷程庫 📚</button>
+                    </div>
                 </div>
                 <div class="vocab-box" id="daily-vocab-box"></div>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 11px; color: var(--text-muted);">每日精進合約條款語感</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">每日精進合約條款英文語感</span>
                     <button class="btn btn-sub" style="font-size: 11px; padding: 3px 8px;" onclick="nextVocab()">換下一個 ↻</button>
                 </div>
             </div>
 
-            <!-- 4. 當前專案進度與細項 -->
+            <!-- 4. 當前專案進度追蹤 -->
             <div class="card">
                 <div class="card-header">
                     <h2>🎯 核心專案進度追蹤</h2>
@@ -528,9 +520,14 @@
 
     </div>
 
+    <!-- 頁尾 Copyright -->
+    <footer>
+        copyright @凱蒂嗡嗡嗡
+    </footer>
+
     <!-- ================= 彈窗區塊 (Modals) ================= -->
 
-    <!-- Modal 1: 爭點詳細資料彈窗 -->
+    <!-- Modal 1: 爭點詳細資料彈窗（支援追加新增紀錄） -->
     <div class="modal-overlay" id="issue-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('issue-modal')">✕</button>
@@ -538,57 +535,84 @@
             <h2 id="modal-issue-title" style="font-size: 18px; margin-bottom: 6px; color: var(--navy-dark);"></h2>
             <div id="modal-issue-date" style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;"></div>
             
-            <div class="detail-label">📌 爭點核心分析與建議細節</div>
+            <div class="detail-label">📌 核心爭點分析與原始結論</div>
             <div class="detail-block" id="modal-issue-detail"></div>
 
-            <div style="display: flex; justify-content: flex-end;">
-                <button class="btn" style="background: #ef4444;" onclick="deleteCurrentIssue()">刪除此爭點</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal 2: 產品三合一合約彈窗 (服務條款、隱私權政策、重點合約) -->
-    <div class="modal-overlay" id="product-modal">
-        <div class="modal-window">
-            <button class="modal-close-btn" onclick="closeModal('product-modal')">✕</button>
-            <h2 id="modal-product-title" style="font-size: 18px; margin-bottom: 14px; color: var(--navy-dark);"></h2>
+            <div class="detail-label">➕ 追加新進展 / 後續實務補充筆記</div>
+            <textarea id="modal-issue-append" rows="4" placeholder="在此輸入後續主管反饋、訴訟最新判決要旨，或補充的法條見解..."></textarea>
             
-            <div class="detail-label">📜 服務條款 (Terms of Service)</div>
-            <textarea id="modal-product-tos" rows="3" placeholder="備註服務條款重點、特殊免責限制或版本連結..."></textarea>
-
-            <div class="detail-label">🔒 隱私權政策 (Privacy Policy)</div>
-            <textarea id="modal-product-privacy" rows="3" placeholder="備註個資蒐集目的、第三方 SDK 共享政策或版本連結..."></textarea>
-
-            <div class="detail-label">📑 重點合約與特殊架構 (Key Agreements)</div>
-            <textarea id="modal-product-keycontract" rows="3" placeholder="備註該產品簽訂的主要合作夥伴框架、B2B SLA 或分潤合約..."></textarea>
-
-            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                <button class="btn" style="background: #ef4444;" onclick="deleteCurrentProduct()">刪除產品</button>
-                <button class="btn btn-brand" onclick="saveProductDetails()">儲存產品條款細項</button>
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+                <button class="btn btn-brand" onclick="saveAppendedIssueNote()">儲存並追加補充內容</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal 3: 新增產品彈窗 -->
-    <div class="modal-overlay" id="add-product-modal">
-        <div class="modal-window" style="max-width: 400px;">
-            <button class="modal-close-btn" onclick="closeModal('add-product-modal')">✕</button>
-            <h3 style="margin-bottom: 12px;">新增產品分類</h3>
-            <input type="text" id="new-product-name" placeholder="輸入產品或服務名稱 (例：SaaS 平台、行動 App)">
-            <button class="btn btn-brand" style="width: 100%; justify-content: center;" onclick="confirmAddProduct()">確認建立</button>
+    <!-- Modal 2: 合約知識庫管理清單彈窗（制式 vs 產品） -->
+    <div class="modal-overlay" id="contract-hub-modal">
+        <div class="modal-window">
+            <button class="modal-close-btn" onclick="closeModal('contract-hub-modal')">✕</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <h2 id="contract-hub-title" style="font-size: 18px; color: var(--navy-dark);"></h2>
+                <button class="btn btn-brand" style="font-size: 12px; padding: 6px 12px;" onclick="openNewContractItemModal()">+ 新增合約條目</button>
+            </div>
+            <div id="contract-items-container"></div>
         </div>
     </div>
 
-    <!-- Modal 4: 法學英文學習歷程庫彈窗 -->
+    <!-- Modal 3: 新增合約條目（含檔案上傳） -->
+    <div class="modal-overlay" id="add-contract-item-modal">
+        <div class="modal-window" style="max-width: 480px;">
+            <button class="modal-close-btn" onclick="closeModal('add-contract-item-modal')">✕</button>
+            <h3 style="margin-bottom: 12px;">新增合約 / 條款紀錄</h3>
+            
+            <div class="detail-label">合約名稱</div>
+            <input type="text" id="new-contract-name" placeholder="例：標準保密合約 (NDA)、SaaS 服務條款">
+            
+            <div class="detail-label" id="new-contract-type-label">產品/適用類別</div>
+            <input type="text" id="new-contract-category" placeholder="例：通用、企業版、行動 App">
+
+            <div class="detail-label">合約摘要 / 重點條款筆記</div>
+            <textarea id="new-contract-summary" rows="3" placeholder="記載版本、賠償責任上限、管轄法院等核心爭點摘要..."></textarea>
+
+            <div class="detail-label">📎 上傳合約檔案/文件 (PDF, Word, 圖檔)</div>
+            <input type="file" id="new-contract-file" style="margin-bottom: 16px;">
+
+            <button class="btn btn-brand" style="width: 100%; justify-content: center;" onclick="confirmAddContractItem()">確認儲存合約</button>
+        </div>
+    </div>
+
+    <!-- Modal 4: 自訂上傳法學英文單字 -->
+    <div class="modal-overlay" id="add-vocab-modal">
+        <div class="modal-window" style="max-width: 460px;">
+            <button class="modal-close-btn" onclick="closeModal('add-vocab-modal')">✕</button>
+            <h3 style="margin-bottom: 12px;">📖 新增今日學到的法學英文</h3>
+            
+            <div class="detail-label">英文單字 / 片語</div>
+            <input type="text" id="new-vocab-word" placeholder="例：Consequential Damages">
+
+            <div class="detail-label">詞性 / 音標</div>
+            <input type="text" id="new-vocab-pronounce" placeholder="例：[ˌkɑːnsəˈkwɛnʃəl] (n.) 間接損害">
+
+            <div class="detail-label">中文釋義</div>
+            <input type="text" id="new-vocab-meaning" placeholder="例：非直接由違約行為造成，而是由特殊情況引發的間接損失。">
+
+            <div class="detail-label">合約條款實戰例句</div>
+            <textarea id="new-vocab-clause" rows="3" placeholder="例：In no event shall either party be liable for any consequential or indirect damages."></textarea>
+
+            <button class="btn btn-brand" style="width: 100%; justify-content: center;" onclick="confirmAddVocab()">儲存至單字庫</button>
+        </div>
+    </div>
+
+    <!-- Modal 5: 法學英文學習歷程庫 -->
     <div class="modal-overlay" id="vocab-history-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('vocab-history-modal')">✕</button>
-            <h3 style="margin-bottom: 14px;">📚 已累積法學英文詞彙庫</h3>
+            <h3 style="margin-bottom: 14px;">📚 累計法學英文詞彙庫</h3>
             <div id="vocab-history-list" style="max-height: 60vh; overflow-y: auto;"></div>
         </div>
     </div>
 
-    <!-- Modal 5: 專案細項與進度彈窗 -->
+    <!-- Modal 6: 專案細項與附件上傳彈窗 -->
     <div class="modal-overlay" id="project-detail-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('project-detail-modal')">✕</button>
@@ -601,16 +625,19 @@
             </div>
 
             <div class="detail-label">📋 專案細項、待辦與重要 Milestone</div>
-            <textarea id="modal-proj-notes" rows="5" placeholder="記錄該專案的細部階段進度（例：2026/11/15 完成第一版法遵檢查清單、對造訴狀答辯要點...）"></textarea>
+            <textarea id="modal-proj-notes" rows="4" placeholder="記錄該專案的細部階段進度與辦理紀錄..."></textarea>
 
-            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                <button class="btn" style="background: #ef4444;" onclick="deleteCurrentProject()">刪除專案</button>
-                <button class="btn btn-brand" onclick="saveProjectDetails()">儲存進度更新</button>
+            <div class="detail-label">📎 專案相關檔案 (訴狀、草案、公文)</div>
+            <input type="file" id="modal-proj-file-input" style="margin-bottom: 8px;">
+            <div id="modal-proj-attachments" style="margin-bottom: 16px;"></div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                <button class="btn btn-brand" onclick="saveProjectDetails()">儲存進度與檔案</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal 6: 新增專案彈窗 -->
+    <!-- Modal 7: 新增專案彈窗 -->
     <div class="modal-overlay" id="add-project-modal">
         <div class="modal-window" style="max-width: 420px;">
             <button class="modal-close-btn" onclick="closeModal('add-project-modal')">✕</button>
@@ -622,8 +649,8 @@
     </div>
 
 <script>
-    // 預載法律英文詞庫
-    const legalVocabData = [
+    // 預設與使用者持續自訂的法學英文詞庫
+    let userVocabList = JSON.parse(localStorage.getItem('legal_vocab_custom_v3')) || [
         {
             word: "Indemnification",
             pronounce: "[ɪnˌdɛmnəfɪˈkeɪʃən] (n.) 補償、損害免責",
@@ -645,56 +672,29 @@
         {
             word: "Force Majeure",
             pronounce: "[ˌfɔːrs məˈʒɜːr] (n.) 不可抗力",
-            meaning: "無法預見、無法避免且無法控制之客觀障礙（如天災、禁令），可構成履行免責。",
+            meaning: "無法預見、無法避免且無法克服之客觀障礙（如天災、禁令），可構成履行免責。",
             clause: "Neither party shall be liable for delay caused by events of Force Majeure beyond control."
-        },
-        {
-            word: "Representations and Warranties",
-            pronounce: "(n.) 聲明與保證 (R&W)",
-            meaning: "一方對客觀現狀之確認（Rep），以及對權利無瑕疵之擔保擔承（Warranty）。",
-            clause: "Supplier represents and warrants that Deliverables do not infringe upon any IP rights."
-        },
-        {
-            word: "Governing Law & Jurisdiction",
-            pronounce: "(n.) 準據法與管轄法院",
-            meaning: "合約爭議時適用何國/地區法律，以及由何處管轄法院管轄。",
-            clause: "This Agreement shall be governed by and construed in accordance with the laws of Taiwan."
         }
     ];
 
     // 本地持久化資料主體
-    let appData = JSON.parse(localStorage.getItem('legal_ops_hub_v2')) || {
+    let appData = JSON.parse(localStorage.getItem('legal_ops_hub_v3')) || {
         issues: [
             {
                 id: 1,
                 title: "高階經理人合約競業禁止條款之合理補償認定",
                 category: "research",
-                detail: "【爭點背景】業務副總離職擬前往競業任職。\n【實務分析】依勞基法第 9-1 條，每月補償金額若未達離職前月工資 50%，法院極高機率判定無效。\n【因應策略】後續修訂制式高階經理人約定書時，應明定階梯式補償與返還違約金門檻。",
+                detail: "【爭點背景】業務副總離職擬前往競業任職。\n【實務分析】依勞基法第 9-1 條，每月補償金額若未達離職前月工資 50%，法院極高機率判定無效。\n【因應策略】後續修訂制式約定書時，應明定階梯式補償與返還違約金門檻。",
                 date: "2026/11/02"
-            },
-            {
-                id: 2,
-                title: "供應商侵權求償之爭訟程序保全措施",
-                category: "litigation",
-                detail: "【爭點背景】關鍵零件供應商涉及智慧財產權侵害訴訟。\n【保全對策】立即行使合約暫停給付抗辯權，並針對已付貨款聲請假扣押，鎖定對方帳戶以防脫產。",
-                date: "2026/11/01"
             }
         ],
-        products: [
-            {
-                id: 101,
-                name: "企業雲端 SaaS 平台",
-                tos: "SLA 99.9% 服務承諾，明訂重大過失外賠償上限以過去 12 個月實收服務費為限。",
-                privacy: "符合台灣個人資料保護法及跨境傳輸規範，已完成第三方隱私安全審計認證。",
-                keyContract: "大客戶 B2B 主服務合約 (Enterprise MSA) 與經銷夥伴合作備忘錄 (MOU)。"
-            },
-            {
-                id: 102,
-                name: "行動端生活 App",
-                tos: "虛擬點數購買不適用無條件消保法退貨規定（已設定合理例外提示）。",
-                privacy: "涉及手機相簿與定位授權之強制彈窗同意宣告條款。",
-                keyContract: "與支付閘道（Payment Gateway）金流合約及 Apple / Google 開發者協議條款。"
-            }
+        standardContracts: [
+            { id: 1, name: "通用雙向保密協議 (Mutual NDA)", category: "通用", summary: "保密期 3 年，排除獨立開發及已知資訊，已核定 2026 版標準範本。", file: null },
+            { id: 2, name: "辦公室房屋租賃契約 (範本)", category: "總務租賃", summary: "押金 2 個月，修繕責任以房東承擔結構性修繕為原則。", file: null }
+        ],
+        productContracts: [
+            { id: 101, name: "SaaS 平台服務條款 (Terms of Service)", category: "SaaS產品", summary: "SLA 99.9% 服務可用性，責任上限為過去 12 個月實收費用。", file: null },
+            { id: 102, name: "App 使用者隱私權政策 (Privacy Policy)", category: "行動App", summary: "整合第三方廣告 SDK 宣告與跨國資料傳輸條款，符合個資法規。", file: null }
         ],
         projects: [
             {
@@ -702,14 +702,8 @@
                 name: "全公司制式合約與法遵指引年度翻修",
                 dueDate: "2026-11-30",
                 progress: 65,
-                notes: "• [完成] NDA 與採購合約翻新\n• [進行中] 業務經銷合約草案覆核\n• [待辦] 呈報法務長核准與內部公告"
-            },
-            {
-                id: 202,
-                name: "新版個人資料保護法應變審查專案",
-                dueDate: "2026-12-15",
-                progress: 30,
-                notes: "• [進行中] 各部門資料盤點作業\n• [待辦] 外部資安律師諮詢意見會議"
+                notes: "• [完成] NDA 與採購合約翻新\n• [進行中] 業務經銷合約草案覆核",
+                files: []
             }
         ],
         vocabIndex: 0
@@ -717,14 +711,14 @@
 
     let currentFilter = "all";
     let activeIssueId = null;
-    let activeProductId = null;
+    let currentContractType = "standard"; // standard or product
     let activeProjectId = null;
 
     function save() {
-        localStorage.setItem('legal_ops_hub_v2', JSON.stringify(appData));
+        localStorage.setItem('legal_ops_hub_v3', JSON.stringify(appData));
+        localStorage.setItem('legal_vocab_custom_v3', JSON.stringify(userVocabList));
     }
 
-    // 初始化日期標籤
     document.getElementById('current-date-badge').innerText = new Date().toLocaleDateString('zh-TW', {
         year: 'numeric', month: 'long', day: 'numeric', weekday: 'short'
     });
@@ -806,98 +800,120 @@
 
         document.getElementById('modal-issue-badge').innerHTML = `<span class="cat-tag ${catMap[issue.category].cls}">${catMap[issue.category].name}</span>`;
         document.getElementById('modal-issue-title').innerText = issue.title;
-        document.getElementById('modal-issue-date').innerText = "建立日期：" + issue.date;
+        document.getElementById('modal-issue-date').innerText = "建檔日期：" + issue.date;
         document.getElementById('modal-issue-detail').innerText = issue.detail;
+        document.getElementById('modal-issue-append').value = '';
 
         openModal('issue-modal');
     }
 
-    function deleteCurrentIssue() {
-        if (!confirm("確定要刪除這筆爭點與經驗紀錄嗎？")) return;
-        appData.issues = appData.issues.filter(i => i.id !== activeIssueId);
-        save();
-        closeModal('issue-modal');
-        renderIssues();
+    function saveAppendedIssueNote() {
+        const issue = appData.issues.find(i => i.id === activeIssueId);
+        const appendText = document.getElementById('modal-issue-append').value.trim();
+        if (!issue) return;
+
+        if (appendText) {
+            const timeStamp = new Date().toLocaleDateString('zh-TW');
+            issue.detail += `\n\n【追加補充 - ${timeStamp}】\n` + appendText;
+            save();
+            document.getElementById('modal-issue-detail').innerText = issue.detail;
+            document.getElementById('modal-issue-append').value = '';
+            alert("已成功追加補充紀錄！");
+        } else {
+            alert("請先輸入欲追加的補充筆記內容。");
+        }
     }
 
-    // 2. 合約知識庫邏輯
-    function viewStandardContract(type) {
-        alert(`【${type}】\n此處為通用標準約範本索引。您可於公司內部範本庫對照使用，或在爭點專區記錄此範本之審約常遇爭議！`);
+    // 2. 合約條款知識庫邏輯
+    function openContractListModal(type) {
+        currentContractType = type;
+        const titleText = type === 'standard' ? "📌 制式合約、條款清單" : "🚀 產品重要合約、條款清單";
+        document.getElementById('contract-hub-title').innerText = titleText;
+        renderContractItemsList();
+        openModal('contract-hub-modal');
     }
 
-    function renderProducts() {
-        const container = document.getElementById('product-list-container');
-        if (appData.products.length === 0) {
-            container.innerHTML = `<div style="font-size: 12px; color: var(--text-muted); padding: 8px;">尚未建立任何產品合約分類</div>`;
+    function renderContractItemsList() {
+        const list = currentContractType === 'standard' ? appData.standardContracts : appData.productContracts;
+        const container = document.getElementById('contract-items-container');
+
+        if (!list || list.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">目前尚無合約，請點擊右上角新增。</div>`;
             return;
         }
 
-        container.innerHTML = appData.products.map(prod => `
-            <div class="product-card-item" onclick="openProductModal(${prod.id})">
-                <span style="font-size: 13px; font-weight: 700; color: var(--navy-primary);">📦 ${prod.name}</span>
-                <span style="font-size: 12px; color: var(--brand-blue); font-weight: 600;">條款細項 ➔</span>
+        container.innerHTML = list.map(item => `
+            <div class="contract-item-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <div style="font-size: 15px; font-weight: 800; color: var(--navy-primary);">${item.name}</div>
+                        <span style="font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: var(--text-muted); font-weight: 600;">類別：${item.category || "未分類"}</span>
+                    </div>
+                </div>
+                <div style="font-size: 13px; color: var(--navy-light); margin-top: 8px; background: #f8fafc; padding: 8px 10px; border-radius: 6px;">
+                    ${item.summary || "（無摘要備註）"}
+                </div>
+                ${item.file ? `
+                    <div style="margin-top: 8px;">
+                        <a href="${item.file.data}" download="${item.file.name}" class="file-badge">📥 下載/檢視附件：${item.file.name}</a>
+                    </div>
+                ` : ''}
             </div>
         `).join('');
     }
 
-    function openAddProductModal() {
-        document.getElementById('new-product-name').value = '';
-        openModal('add-product-modal');
+    function openNewContractItemModal() {
+        document.getElementById('new-contract-name').value = '';
+        document.getElementById('new-contract-category').value = '';
+        document.getElementById('new-contract-summary').value = '';
+        document.getElementById('new-contract-file').value = '';
+        openModal('add-contract-item-modal');
     }
 
-    function confirmAddProduct() {
-        const name = document.getElementById('new-product-name').value.trim();
-        if (!name) return alert("請輸入產品名稱");
+    function confirmAddContractItem() {
+        const name = document.getElementById('new-contract-name').value.trim();
+        const category = document.getElementById('new-contract-category').value.trim();
+        const summary = document.getElementById('new-contract-summary').value.trim();
+        const fileInput = document.getElementById('new-contract-file');
 
-        appData.products.push({
-            id: Date.now(),
-            name,
-            tos: "",
-            privacy: "",
-            keyContract: ""
-        });
-        save();
-        closeModal('add-product-modal');
-        renderProducts();
+        if (!name) return alert("請輸入合約名稱！");
+
+        const targetList = currentContractType === 'standard' ? appData.standardContracts : appData.productContracts;
+
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                targetList.unshift({
+                    id: Date.now(),
+                    name,
+                    category: category || "未分類",
+                    summary,
+                    file: { name: file.name, data: e.target.result }
+                });
+                save();
+                closeModal('add-contract-item-modal');
+                renderContractItemsList();
+            };
+            reader.readAsDataURL(file);
+        } else {
+            targetList.unshift({
+                id: Date.now(),
+                name,
+                category: category || "未分類",
+                summary,
+                file: null
+            });
+            save();
+            closeModal('add-contract-item-modal');
+            renderContractItemsList();
+        }
     }
 
-    function openProductModal(id) {
-        activeProductId = id;
-        const prod = appData.products.find(p => p.id === id);
-        if (!prod) return;
-
-        document.getElementById('modal-product-title').innerText = "📦 " + prod.name + " 合約架構";
-        document.getElementById('modal-product-tos').value = prod.tos || "";
-        document.getElementById('modal-product-privacy').value = prod.privacy || "";
-        document.getElementById('modal-product-keycontract').value = prod.keyContract || "";
-
-        openModal('product-modal');
-    }
-
-    function saveProductDetails() {
-        const prod = appData.products.find(p => p.id === activeProductId);
-        if (!prod) return;
-
-        prod.tos = document.getElementById('modal-product-tos').value;
-        prod.privacy = document.getElementById('modal-product-privacy').value;
-        prod.keyContract = document.getElementById('modal-product-keycontract').value;
-
-        save();
-        alert("已成功更新該產品合約條款細項！");
-        closeModal('product-modal');
-    }
-
-    function deleteCurrentProduct() {
-        if (!confirm("確定要移除此產品分類嗎？")) return;
-        appData.products = appData.products.filter(p => p.id !== activeProductId);
-        save();
-        closeModal('product-modal');
-        renderProducts();
-    }
-
-    // 3. 每日法學英文與歷程庫邏輯
+    // 3. 每日法學英文與自訂單字上傳邏輯
     function renderDailyVocab() {
-        const item = legalVocabData[appData.vocabIndex];
+        if (userVocabList.length === 0) return;
+        const item = userVocabList[appData.vocabIndex % userVocabList.length];
         document.getElementById('daily-vocab-box').innerHTML = `
             <div class="vocab-word">${item.word}</div>
             <div class="vocab-pronounce">${item.pronounce}</div>
@@ -907,14 +923,44 @@
     }
 
     function nextVocab() {
-        appData.vocabIndex = (appData.vocabIndex + 1) % legalVocabData.length;
+        appData.vocabIndex = (appData.vocabIndex + 1) % userVocabList.length;
         save();
         renderDailyVocab();
     }
 
+    function openNewVocabModal() {
+        document.getElementById('new-vocab-word').value = '';
+        document.getElementById('new-vocab-pronounce').value = '';
+        document.getElementById('new-vocab-meaning').value = '';
+        document.getElementById('new-vocab-clause').value = '';
+        openModal('add-vocab-modal');
+    }
+
+    function confirmAddVocab() {
+        const word = document.getElementById('new-vocab-word').value.trim();
+        const pronounce = document.getElementById('new-vocab-pronounce').value.trim();
+        const meaning = document.getElementById('new-vocab-meaning').value.trim();
+        const clause = document.getElementById('new-vocab-clause').value.trim();
+
+        if (!word || !meaning) return alert("請至少填寫單字與中文釋義！");
+
+        userVocabList.unshift({
+            word,
+            pronounce: pronounce || "(n./v.)",
+            meaning,
+            clause: clause || "（暫無例句）"
+        });
+
+        appData.vocabIndex = 0;
+        save();
+        closeModal('add-vocab-modal');
+        renderDailyVocab();
+        alert("已成功加入法學英文單字庫！");
+    }
+
     function openVocabHistoryModal() {
         const container = document.getElementById('vocab-history-list');
-        container.innerHTML = legalVocabData.map((item, idx) => `
+        container.innerHTML = userVocabList.map((item, idx) => `
             <div style="border-bottom: 1px solid var(--border); padding: 12px 0;">
                 <div style="font-size: 15px; font-weight: 800; color: var(--brand-blue);">${idx + 1}. ${item.word}</div>
                 <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">${item.pronounce}</div>
@@ -925,7 +971,7 @@
         openModal('vocab-history-modal');
     }
 
-    // 4. 專案管理邏輯
+    // 4. 專案管理與附件邏輯
     function renderProjects() {
         const container = document.getElementById('project-list-container');
         if (appData.projects.length === 0) {
@@ -944,7 +990,7 @@
                 </div>
                 <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; display:flex; justify-content:space-between;">
                     <span>🎯 目標日：${proj.dueDate || "未設定"}</span>
-                    <span>點擊檢視細項 ➔</span>
+                    <span>檢視進度與附件 ➔</span>
                 </div>
             </div>
         `).join('');
@@ -966,7 +1012,8 @@
             name: title,
             dueDate,
             progress: 0,
-            notes: ""
+            notes: "",
+            files: []
         });
         save();
         closeModal('add-project-modal');
@@ -982,8 +1029,24 @@
         document.getElementById('modal-proj-progress').value = proj.progress;
         document.getElementById('modal-proj-percent-text').innerText = proj.progress + "%";
         document.getElementById('modal-proj-notes').value = proj.notes || "";
+        document.getElementById('modal-proj-file-input').value = '';
 
+        renderProjectFiles(proj);
         openModal('project-detail-modal');
+    }
+
+    function renderProjectFiles(proj) {
+        const container = document.getElementById('modal-proj-attachments');
+        if (!proj.files || proj.files.length === 0) {
+            container.innerHTML = `<span style="font-size: 12px; color: var(--text-muted);">尚無上傳附件</span>`;
+            return;
+        }
+
+        container.innerHTML = proj.files.map(f => `
+            <div style="margin-top: 4px;">
+                <a href="${f.data}" download="${f.name}" class="file-badge">📥 ${f.name}</a>
+            </div>
+        `).join('');
     }
 
     function updateProgressDisplay(val) {
@@ -997,18 +1060,24 @@
         proj.progress = parseInt(document.getElementById('modal-proj-progress').value) || 0;
         proj.notes = document.getElementById('modal-proj-notes').value;
 
-        save();
-        alert("專案進度與細項已儲存！");
-        closeModal('project-detail-modal');
-        renderProjects();
-    }
-
-    function deleteCurrentProject() {
-        if (!confirm("確定要刪除此專案嗎？")) return;
-        appData.projects = appData.projects.filter(p => p.id !== activeProjectId);
-        save();
-        closeModal('project-detail-modal');
-        renderProjects();
+        const fileInput = document.getElementById('modal-proj-file-input');
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (!proj.files) proj.files = [];
+                proj.files.push({ name: file.name, data: e.target.result });
+                save();
+                renderProjects();
+                renderProjectFiles(proj);
+                alert("專案進度與新附件已儲存！");
+            };
+            reader.readAsDataURL(file);
+        } else {
+            save();
+            renderProjects();
+            alert("專案進度已儲存！");
+        }
     }
 
     // Modal 開關小幫手
@@ -1028,7 +1097,6 @@
 
     // 系統載入
     renderIssues();
-    renderProducts();
     renderDailyVocab();
     renderProjects();
 </script>
