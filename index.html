@@ -148,6 +148,7 @@
         }
 
         .btn:hover { background: var(--navy-dark); }
+        .btn:disabled { background: #94a3b8; cursor: not-allowed; }
 
         .btn-sub {
             background: #f1f5f9;
@@ -241,7 +242,6 @@
             margin-left: 12px;
         }
 
-        /* 合約卡片大標籤切換 */
         .hub-tag-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -277,7 +277,6 @@
             color: var(--text-muted);
         }
 
-        /* 每日法學英文 */
         .vocab-box {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: #ffffff;
@@ -299,7 +298,6 @@
             font-style: italic;
         }
 
-        /* 專案卡片 */
         .project-row {
             padding: 12px 14px;
             border: 1px solid var(--border);
@@ -335,7 +333,6 @@
             border-radius: 4px;
         }
 
-        /* 彈窗樣式 */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -395,13 +392,16 @@
             gap: 4px;
             background: #eff6ff;
             color: var(--brand-blue);
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 6px;
             font-size: 12px;
-            text-decoration: none;
             font-weight: 600;
             margin-top: 6px;
+            cursor: pointer;
+            border: 1px solid #bfdbfe;
         }
+
+        .file-badge:hover { background: #dbeafe; }
 
         footer {
             max-width: 1400px;
@@ -427,7 +427,6 @@
 
     <div class="dashboard-container">
         
-        <!-- 左側主欄：重點爭點與實戰經驗庫 -->
         <div class="col-main">
             
             <div class="card">
@@ -468,10 +467,8 @@
 
         </div>
 
-        <!-- 右側副欄：合約庫、法學英文、專案進度 -->
         <div class="col-sub">
             
-            <!-- 2. 合約條款知識庫（制式合約/條款 vs 產品重要合約/條款） -->
             <div class="card">
                 <div class="card-header">
                     <h2>📁 合約條款知識庫</h2>
@@ -487,11 +484,10 @@
                     </div>
                 </div>
                 <div style="font-size: 11px; color: var(--text-muted); text-align: center;">
-                    點擊標籤進入完整清單，支援新增自訂合約、上傳附件檔案與摘要筆記
+                    點擊標籤進入完整清單，支援直接上傳與下載 Word、PDF 等大型合約檔
                 </div>
             </div>
 
-            <!-- 3. 每日法學英文與自訂單字上傳 -->
             <div class="card">
                 <div class="card-header">
                     <h2>📖 每日法學英文 (Daily Legal English)</h2>
@@ -507,7 +503,6 @@
                 </div>
             </div>
 
-            <!-- 4. 當前專案進度追蹤 -->
             <div class="card">
                 <div class="card-header">
                     <h2>🎯 核心專案進度追蹤</h2>
@@ -520,14 +515,11 @@
 
     </div>
 
-    <!-- 頁尾 Copyright -->
     <footer>
         copyright @凱蒂嗡嗡嗡
     </footer>
 
-    <!-- ================= 彈窗區塊 (Modals) ================= -->
-
-    <!-- Modal 1: 爭點詳細資料彈窗（支援追加新增紀錄） -->
+    <!-- Modals -->
     <div class="modal-overlay" id="issue-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('issue-modal')">✕</button>
@@ -547,7 +539,6 @@
         </div>
     </div>
 
-    <!-- Modal 2: 合約知識庫管理清單彈窗（制式 vs 產品） -->
     <div class="modal-overlay" id="contract-hub-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('contract-hub-modal')">✕</button>
@@ -559,14 +550,13 @@
         </div>
     </div>
 
-    <!-- Modal 3: 新增合約條目（含檔案上傳） -->
     <div class="modal-overlay" id="add-contract-item-modal">
         <div class="modal-window" style="max-width: 480px;">
             <button class="modal-close-btn" onclick="closeModal('add-contract-item-modal')">✕</button>
             <h3 style="margin-bottom: 12px;">新增合約 / 條款紀錄</h3>
             
             <div class="detail-label">合約名稱</div>
-            <input type="text" id="new-contract-name" placeholder="例：標準保密合約 (NDA)、SaaS 服務條款">
+            <input type="text" id="new-contract-name" placeholder="例：單向保密合約（中文版）">
             
             <div class="detail-label" id="new-contract-type-label">產品/適用類別</div>
             <input type="text" id="new-contract-category" placeholder="例：通用、企業版、行動 App">
@@ -574,14 +564,13 @@
             <div class="detail-label">合約摘要 / 重點條款筆記</div>
             <textarea id="new-contract-summary" rows="3" placeholder="記載版本、賠償責任上限、管轄法院等核心爭點摘要..."></textarea>
 
-            <div class="detail-label">📎 上傳合約檔案/文件 (PDF, Word, 圖檔)</div>
+            <div class="detail-label">📎 上傳合約檔案/文件 (支援各尺寸 Word, PDF)</div>
             <input type="file" id="new-contract-file" style="margin-bottom: 16px;">
 
-            <button class="btn btn-brand" style="width: 100%; justify-content: center;" onclick="confirmAddContractItem()">確認儲存合約</button>
+            <button class="btn btn-brand" id="btn-save-contract" style="width: 100%; justify-content: center;" onclick="confirmAddContractItem()">確認儲存合約</button>
         </div>
     </div>
 
-    <!-- Modal 4: 自訂上傳法學英文單字 -->
     <div class="modal-overlay" id="add-vocab-modal">
         <div class="modal-window" style="max-width: 460px;">
             <button class="modal-close-btn" onclick="closeModal('add-vocab-modal')">✕</button>
@@ -603,7 +592,6 @@
         </div>
     </div>
 
-    <!-- Modal 5: 法學英文學習歷程庫 -->
     <div class="modal-overlay" id="vocab-history-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('vocab-history-modal')">✕</button>
@@ -612,7 +600,6 @@
         </div>
     </div>
 
-    <!-- Modal 6: 專案細項與附件上傳彈窗 -->
     <div class="modal-overlay" id="project-detail-modal">
         <div class="modal-window">
             <button class="modal-close-btn" onclick="closeModal('project-detail-modal')">✕</button>
@@ -632,12 +619,11 @@
             <div id="modal-proj-attachments" style="margin-bottom: 16px;"></div>
 
             <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                <button class="btn btn-brand" onclick="saveProjectDetails()">儲存進度與檔案</button>
+                <button class="btn btn-brand" id="btn-save-project" onclick="saveProjectDetails()">儲存進度與檔案</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal 7: 新增專案彈窗 -->
     <div class="modal-overlay" id="add-project-modal">
         <div class="modal-window" style="max-width: 420px;">
             <button class="modal-close-btn" onclick="closeModal('add-project-modal')">✕</button>
@@ -649,7 +635,69 @@
     </div>
 
 <script>
-    // 預設與使用者持續自訂的法學英文詞庫
+    // --- 1. IndexedDB 核心模組（支援高達數 GB 的本地大檔案儲存） ---
+    const DB_NAME = 'LegalOpsFilesStore_v1';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'blobs';
+    let dbPromise = null;
+
+    function getDB() {
+        if (!dbPromise) {
+            dbPromise = new Promise((resolve, reject) => {
+                const req = indexedDB.open(DB_NAME, DB_VERSION);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    }
+                };
+                req.onsuccess = (e) => resolve(e.target.result);
+                req.onerror = (e) => reject(e.target.error);
+            });
+        }
+        return dbPromise;
+    }
+
+    async function storeBlob(id, file) {
+        const db = await getDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            const store = tx.objectStore(STORE_NAME);
+            store.put({ id: String(id), blob: file, name: file.name, type: file.type });
+            tx.oncomplete = () => resolve();
+            tx.onerror = (e) => reject(e.target.error);
+        });
+    }
+
+    async function fetchBlob(id) {
+        const db = await getDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_NAME, 'readonly');
+            const store = tx.objectStore(STORE_NAME);
+            const req = store.get(String(id));
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = (e) => reject(e.target.error);
+        });
+    }
+
+    async function downloadFileFromDB(fileId, fallbackName) {
+        try {
+            const record = await fetchBlob(fileId);
+            if (!record || !record.blob) return alert('找不到檔案資料，可能已被清除。');
+            const url = URL.createObjectURL(record.blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = record.name || fallbackName || 'contract_file';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (err) {
+            alert('檔案下載失敗：' + err.message);
+        }
+    }
+
+    // --- 2. 資料模型與同步 ---
     let userVocabList = JSON.parse(localStorage.getItem('legal_vocab_custom_v3')) || [
         {
             word: "Indemnification",
@@ -677,7 +725,6 @@
         }
     ];
 
-    // 本地持久化資料主體
     let appData = JSON.parse(localStorage.getItem('legal_ops_hub_v3')) || {
         issues: [
             {
@@ -689,12 +736,12 @@
             }
         ],
         standardContracts: [
-            { id: 1, name: "通用雙向保密協議 (Mutual NDA)", category: "通用", summary: "保密期 3 年，排除獨立開發及已知資訊，已核定 2026 版標準範本。", file: null },
-            { id: 2, name: "辦公室房屋租賃契約 (範本)", category: "總務租賃", summary: "押金 2 個月，修繕責任以房東承擔結構性修繕為原則。", file: null }
+            { id: 1, name: "通用雙向保密協議 (Mutual NDA)", category: "通用", summary: "保密期 3 年，排除獨立開發及已知資訊，已核定標準範本。", fileId: null, fileName: null },
+            { id: 2, name: "辦公室房屋租賃契約 (範本)", category: "總務租賃", summary: "押金 2 個月，修繕責任以房東承擔結構性修繕為原則。", fileId: null, fileName: null }
         ],
         productContracts: [
-            { id: 101, name: "SaaS 平台服務條款 (Terms of Service)", category: "SaaS產品", summary: "SLA 99.9% 服務可用性，責任上限為過去 12 個月實收費用。", file: null },
-            { id: 102, name: "App 使用者隱私權政策 (Privacy Policy)", category: "行動App", summary: "整合第三方廣告 SDK 宣告與跨國資料傳輸條款，符合個資法規。", file: null }
+            { id: 101, name: "SaaS 平台服務條款 (Terms of Service)", category: "SaaS產品", summary: "SLA 99.9% 服務可用性，責任上限為過去 12 個月實收費用。", fileId: null, fileName: null },
+            { id: 102, name: "App 使用者隱私權政策 (Privacy Policy)", category: "行動App", summary: "整合第三方廣告 SDK 宣告與跨國資料傳輸條款，符合個資法規。", fileId: null, fileName: null }
         ],
         projects: [
             {
@@ -711,19 +758,23 @@
 
     let currentFilter = "all";
     let activeIssueId = null;
-    let currentContractType = "standard"; // standard or product
+    let currentContractType = "standard";
     let activeProjectId = null;
 
     function save() {
-        localStorage.setItem('legal_ops_hub_v3', JSON.stringify(appData));
-        localStorage.setItem('legal_vocab_custom_v3', JSON.stringify(userVocabList));
+        try {
+            localStorage.setItem('legal_ops_hub_v3', JSON.stringify(appData));
+            localStorage.setItem('legal_vocab_custom_v3', JSON.stringify(userVocabList));
+        } catch (e) {
+            console.warn('localStorage 寫入提示:', e);
+        }
     }
 
     document.getElementById('current-date-badge').innerText = new Date().toLocaleDateString('zh-TW', {
         year: 'numeric', month: 'long', day: 'numeric', weekday: 'short'
     });
 
-    // 1. 爭點與實戰經驗邏輯
+    // --- 3. 爭點與實戰經驗邏輯 ---
     function setCategoryFilter(cat, elem) {
         currentFilter = cat;
         document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active'));
@@ -824,7 +875,7 @@
         }
     }
 
-    // 2. 合約條款知識庫邏輯
+    // --- 4. 合約條款知識庫邏輯 ---
     function openContractListModal(type) {
         currentContractType = type;
         const titleText = type === 'standard' ? "📌 制式合約、條款清單" : "🚀 產品重要合約、條款清單";
@@ -853,9 +904,9 @@
                 <div style="font-size: 13px; color: var(--navy-light); margin-top: 8px; background: #f8fafc; padding: 8px 10px; border-radius: 6px;">
                     ${item.summary || "（無摘要備註）"}
                 </div>
-                ${item.file ? `
+                ${item.fileId ? `
                     <div style="margin-top: 8px;">
-                        <a href="${item.file.data}" download="${item.file.name}" class="file-badge">📥 下載/檢視附件：${item.file.name}</a>
+                        <button class="file-badge" onclick="downloadFileFromDB('${item.fileId}', '${item.fileName}')">📥 下載/檢視附件：${item.fileName}</button>
                     </div>
                 ` : ''}
             </div>
@@ -870,7 +921,8 @@
         openModal('add-contract-item-modal');
     }
 
-    function confirmAddContractItem() {
+    async function confirmAddContractItem() {
+        const saveBtn = document.getElementById('btn-save-contract');
         const name = document.getElementById('new-contract-name').value.trim();
         const category = document.getElementById('new-contract-category').value.trim();
         const summary = document.getElementById('new-contract-summary').value.trim();
@@ -878,39 +930,44 @@
 
         if (!name) return alert("請輸入合約名稱！");
 
-        const targetList = currentContractType === 'standard' ? appData.standardContracts : appData.productContracts;
+        saveBtn.disabled = true;
+        saveBtn.innerText = "儲存中，請稍候...";
 
-        if (fileInput.files.length > 0) {
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                targetList.unshift({
-                    id: Date.now(),
-                    name,
-                    category: category || "未分類",
-                    summary,
-                    file: { name: file.name, data: e.target.result }
-                });
-                save();
-                closeModal('add-contract-item-modal');
-                renderContractItemsList();
-            };
-            reader.readAsDataURL(file);
-        } else {
+        try {
+            const targetList = currentContractType === 'standard' ? appData.standardContracts : appData.productContracts;
+            let fileId = null;
+            let fileName = null;
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                fileId = 'contract_blob_' + Date.now();
+                fileName = file.name;
+                await storeBlob(fileId, file);
+            }
+
             targetList.unshift({
                 id: Date.now(),
                 name,
                 category: category || "未分類",
                 summary,
-                file: null
+                fileId,
+                fileName
             });
+
             save();
             closeModal('add-contract-item-modal');
             renderContractItemsList();
+            alert("合約檔案已成功儲存至本地資料庫！");
+        } catch (err) {
+            console.error(err);
+            alert("儲存檔案失敗：" + err.message);
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerText = "確認儲存合約";
         }
     }
 
-    // 3. 每日法學英文與自訂單字上傳邏輯
+    // --- 5. 每日法學英文與自訂單字邏輯 ---
     function renderDailyVocab() {
         if (userVocabList.length === 0) return;
         const item = userVocabList[appData.vocabIndex % userVocabList.length];
@@ -971,7 +1028,7 @@
         openModal('vocab-history-modal');
     }
 
-    // 4. 專案管理與附件邏輯
+    // --- 6. 專案管理邏輯 ---
     function renderProjects() {
         const container = document.getElementById('project-list-container');
         if (appData.projects.length === 0) {
@@ -1044,7 +1101,7 @@
 
         container.innerHTML = proj.files.map(f => `
             <div style="margin-top: 4px;">
-                <a href="${f.data}" download="${f.name}" class="file-badge">📥 ${f.name}</a>
+                <button class="file-badge" onclick="downloadFileFromDB('${f.fileId}', '${f.name}')">📥 下載附件：${f.name}</button>
             </div>
         `).join('');
     }
@@ -1053,30 +1110,38 @@
         document.getElementById('modal-proj-percent-text').innerText = val + "%";
     }
 
-    function saveProjectDetails() {
+    async function saveProjectDetails() {
+        const saveBtn = document.getElementById('btn-save-project');
         const proj = appData.projects.find(p => p.id === activeProjectId);
         if (!proj) return;
 
-        proj.progress = parseInt(document.getElementById('modal-proj-progress').value) || 0;
-        proj.notes = document.getElementById('modal-proj-notes').value;
+        saveBtn.disabled = true;
+        saveBtn.innerText = "儲存中...";
 
-        const fileInput = document.getElementById('modal-proj-file-input');
-        if (fileInput.files.length > 0) {
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
+        try {
+            proj.progress = parseInt(document.getElementById('modal-proj-progress').value) || 0;
+            proj.notes = document.getElementById('modal-proj-notes').value;
+
+            const fileInput = document.getElementById('modal-proj-file-input');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const fileId = 'proj_blob_' + Date.now();
+                await storeBlob(fileId, file);
+
                 if (!proj.files) proj.files = [];
-                proj.files.push({ name: file.name, data: e.target.result });
-                save();
-                renderProjects();
-                renderProjectFiles(proj);
-                alert("專案進度與新附件已儲存！");
-            };
-            reader.readAsDataURL(file);
-        } else {
+                proj.files.push({ fileId, name: file.name });
+            }
+
             save();
             renderProjects();
-            alert("專案進度已儲存！");
+            renderProjectFiles(proj);
+            alert("專案進度與附件已儲存！");
+        } catch (err) {
+            console.error(err);
+            alert("專案儲存失敗：" + err.message);
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerText = "儲存進度與檔案";
         }
     }
 
